@@ -30,7 +30,18 @@ const userSchema = new mongoose.Schema(
     avatarUrl: String,
     location: {
       label: String,
-      point: { type: { type: String, enum: ["Point"], default: "Point" }, coordinates: [Number] }
+      point: {
+        type: { type: String, enum: ["Point"] },
+        coordinates: {
+          type: [Number],
+          validate: {
+            validator(value) {
+              return !value || value.length === 0 || (value.length === 2 && value.every((item) => typeof item === "number"));
+            },
+            message: "Location coordinates must be [longitude, latitude]"
+          }
+        }
+      }
     },
     roles: { type: [String], default: ["buyer", "seller"] },
     verification: { type: verificationSchema, default: () => ({}) },
@@ -55,6 +66,13 @@ userSchema.virtual("isVerified").get(function isVerified() {
   return Boolean(this.verification?.phone && (this.verification?.identity || this.verification?.faceMatch));
 });
 
-userSchema.index({ "location.point": "2dsphere" });
+userSchema.pre("save", function removeEmptyLocation(next) {
+  if (this.location?.point?.coordinates?.length === 0) {
+    this.location.point = undefined;
+  }
+  next();
+});
+
+userSchema.index({ "location.point": "2dsphere" }, { sparse: true });
 
 export const User = mongoose.model("User", userSchema);

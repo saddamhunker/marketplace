@@ -74,8 +74,10 @@ router.post("/verify-otp", async (req, res) => {
       { upsert: true, new: true }
     );
 
+    await User.updateOne({ _id: user._id, "location.point.coordinates": { $size: 0 } }, { $unset: { "location.point": "" } });
+    const cleanUser = await User.findById(user._id);
     const token = createAuthToken({ sub: String(user._id), phoneNumber });
-    res.json({ token, user });
+    res.json({ token, user: cleanUser });
   } catch (error) {
     res.status(400).json({ message: error.message || "OTP verification failed" });
   }
