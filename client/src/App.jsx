@@ -31,6 +31,7 @@ import {
   confirmPhoneOtp,
   isFirebaseReady,
   logoutFirebaseUser,
+  resetRecaptcha,
   sendPhoneOtp,
   watchAuthState
 } from "./lib/firebase.js";
@@ -227,6 +228,8 @@ function AuthModal({ onClose }) {
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => () => resetRecaptcha(), []);
 
   async function handleSendOtp(event) {
     event.preventDefault();

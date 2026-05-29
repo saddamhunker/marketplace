@@ -53,16 +53,36 @@ export function watchAuthState(callback) {
   return () => unsubscribe();
 }
 
-export async function ensureRecaptcha(containerId = "firebase-recaptcha") {
-  const auth = await getFirebaseAuth();
-
-  if (window.trustloopRecaptchaVerifier) {
-    window.trustloopRecaptchaVerifier.clear();
+export function resetRecaptcha(containerId = "firebase-recaptcha") {
+  try {
+    window.trustloopRecaptchaVerifier?.clear();
+  } catch {
+    // Firebase can throw if the widget was already removed with the modal.
   }
+
+  window.trustloopRecaptchaVerifier = null;
+  window.trustloopRecaptchaContainerId = null;
+
+  const element = document.getElementById(containerId);
+  if (element) element.innerHTML = "";
+}
+
+export async function ensureRecaptcha(containerId = "firebase-recaptcha") {
+  await getFirebaseAuth();
+
+  const element = document.getElementById(containerId);
+  if (!element) throw new Error("reCAPTCHA container is not ready");
+
+  if (window.trustloopRecaptchaVerifier && window.trustloopRecaptchaContainerId === containerId) {
+    return window.trustloopRecaptchaVerifier;
+  }
+
+  resetRecaptcha(containerId);
 
   window.trustloopRecaptchaVerifier = new window.firebase.auth.RecaptchaVerifier(containerId, {
     size: "invisible"
   });
+  window.trustloopRecaptchaContainerId = containerId;
 
   await window.trustloopRecaptchaVerifier.render();
   return window.trustloopRecaptchaVerifier;
