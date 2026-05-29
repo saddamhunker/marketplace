@@ -73,6 +73,5 @@ userSchema.pre("save", function removeEmptyLocation(next) {
   next();
 });
 
-userSchema.index({ "location.point": "2dsphere" }, { sparse: true });
 
 export const User = mongoose.model("User", userSchema);

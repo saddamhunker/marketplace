@@ -15,6 +15,7 @@ import offerRoutes from "./routes/offers.routes.js";
 import reportRoutes from "./routes/reports.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import notificationRoutes from "./routes/notifications.routes.js";
+import { User } from "./models/User.js";
 
 dotenv.config({ path: new URL("../.env", import.meta.url) });
 
@@ -59,8 +60,22 @@ httpServer.listen(port, () => {
 });
 
 connectDatabase()
-  .then(() => {
+  .then(async () => {
     console.log("Database connected");
+    try {
+      const indexes = await User.collection.indexes();
+      const geoIndex = indexes.find((index) => index.key?.["location.point"] === "2dsphere");
+      if (geoIndex) {
+        await User.collection.dropIndex(geoIndex.name);
+        console.log(`Dropped unused user geolocation index: ${geoIndex.name}`);
+      }
+      await User.updateMany(
+        { "location.point.coordinates": { $size: 0 } },
+        { $unset: { "location.point": "" } }
+      );
+    } catch (error) {
+      console.warn("User geolocation cleanup skipped", error.message);
+    }
   })
   .catch((error) => {
     console.error("Database connection failed. API is running in degraded mode.", error.message);
