@@ -35,7 +35,7 @@ import {
   sendPhoneOtp,
   watchAuthState
 } from "./lib/firebase.js";
-import { createListing, fetchListings, mapListingFromApi } from "./lib/api.js";
+import { createListing, decideListing, fetchAdminDashboard, fetchListings, fetchPendingListings, mapListingFromApi } from "./lib/api.js";
 
 const categories = [
   { name: "Mobiles", icon: Smartphone, count: "8.4k", proof: "IMEI, bill, battery health, repair history" },
@@ -216,7 +216,7 @@ function App() {
         <SellFlow firebaseUser={firebaseUser} onListingCreated={handleLocalListingCreated} />
         <SafetySystem />
         <MobileAppPreview listings={marketListings} />
-        <AdminDashboard />
+        <AdminDashboard firebaseUser={firebaseUser} />
       </main>
     </div>
   );
@@ -759,34 +759,109 @@ function MobileAppPreview({ listings }) {
   );
 }
 
-function AdminDashboard() {
+function AdminDashboard({ firebaseUser }) {
+  const [pendingListings, setPendingListings] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [adminStatus, setAdminStatus] = useState("Login and claim admin access to review submitted listings.");
+  const [loading, setLoading] = useState(false);
+  const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+
+  async function getToken() {
+    if (!firebaseUser) throw new Error("Login required");
+    return firebaseUser.getIdToken();
+  }
+
+  async function loadAdminData() {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      const [dashboard, pending] = await Promise.all([
+        fetchAdminDashboard(token),
+        fetchPendingListings(token)
+      ]);
+      setStats(dashboard);
+      setPendingListings(pending.listings || []);
+      setAdminStatus((pending.listings?.length || 0) ? "Pending listings ready for review." : "No pending listings right now.");
+    } catch (error) {
+      setAdminStatus(error.message || "Admin data unavailable. Claim admin access first.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function claimAdmin() {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/auth/claim-admin`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Admin claim failed");
+      setAdminStatus("Admin access enabled. Loading review queue...");
+      await loadAdminData();
+    } catch (error) {
+      setAdminStatus(error.message || "Admin claim failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDecision(listingId, decision) {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      await decideListing(listingId, decision, token, decision === "approve" ? "Verified by admin" : "Rejected during manual review");
+      setPendingListings((current) => current.filter((listing) => listing._id !== listingId));
+      setAdminStatus(decision === "approve" ? "Listing approved and public." : "Listing rejected.");
+    } catch (error) {
+      setAdminStatus(error.message || "Decision failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section id="admin" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="section-heading">
         <div>
           <p className="eyebrow">Admin dashboard</p>
-          <h2>Moderate listings before they reach the public.</h2>
+          <h2>Approve real listings before they reach buyers.</h2>
+          <p className="data-status">{adminStatus}</p>
         </div>
-        <span className="live-dot">Live moderation</span>
+        <div className="admin-actions">
+          <button className="secondary-button" onClick={claimAdmin} disabled={loading || !firebaseUser}>Claim admin</button>
+          <button className="primary-button" onClick={loadAdminData} disabled={loading || !firebaseUser}>Refresh queue</button>
+        </div>
       </div>
       <div className="admin-grid">
         <article className="admin-panel large-panel">
           <div className="panel-title">
             <AlertTriangle className="size-5 text-amber" />
-            Scam detection queue
+            Pending approval queue
           </div>
-          {moderationQueue.map((row) => (
-            <div className="queue-row" key={row.item}>
-              <div>
-                <strong>{row.item}</strong>
-                <span>{row.signal}</span>
+          {(pendingListings.length ? pendingListings : moderationQueue).map((row) => {
+            const isLiveListing = Boolean(row._id);
+            const risk = isLiveListing ? (row.moderation?.riskScore >= 70 ? "High" : row.moderation?.riskScore >= 30 ? "Medium" : "Low") : row.risk;
+            return (
+              <div className="queue-row" key={row._id || row.item}>
+                <div>
+                  <strong>{row.title || row.item}</strong>
+                  <span>{isLiveListing ? `${row.category} • ${row.location?.label || "No city"} • ${row.verificationDetails?.proofSummary || "Proof pending"}` : row.signal}</span>
+                </div>
+                <span className={`risk ${risk.toLowerCase()}`}>{risk}</span>
+                {isLiveListing ? (
+                  <div className="decision-actions">
+                    <button className="approve-button" onClick={() => handleDecision(row._id, "approve")} disabled={loading}>Approve</button>
+                    <button className="review-button" onClick={() => handleDecision(row._id, "reject")} disabled={loading}>Reject</button>
+                  </div>
+                ) : (
+                  <button className={row.status === "Approve" ? "approve-button" : "review-button"}>{row.status}</button>
+                )}
               </div>
-              <span className={`risk ${row.risk.toLowerCase()}`}>{row.risk}</span>
-              <button className={row.status === "Approve" ? "approve-button" : "review-button"}>
-                {row.status}
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </article>
         <article className="admin-panel">
           <div className="panel-title">
@@ -794,10 +869,10 @@ function AdminDashboard() {
             Analytics
           </div>
           <div className="analytics-grid">
-            <div><strong>1,284</strong><span>pending reviews</span></div>
-            <div><strong>382</strong><span>blocked scams</span></div>
-            <div><strong>92%</strong><span>verified sellers</span></div>
-            <div><strong>4.8</strong><span>avg reputation</span></div>
+            <div><strong>{stats?.pendingListings ?? "--"}</strong><span>pending reviews</span></div>
+            <div><strong>{stats?.highRisk ?? "--"}</strong><span>high risk alerts</span></div>
+            <div><strong>{stats?.users ?? "--"}</strong><span>active users</span></div>
+            <div><strong>{stats?.openReports ?? "--"}</strong><span>open reports</span></div>
           </div>
         </article>
         <article className="admin-panel">
@@ -819,5 +894,6 @@ function AdminDashboard() {
     </section>
   );
 }
-
 export default App;
+
+

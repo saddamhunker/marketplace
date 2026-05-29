@@ -37,3 +37,35 @@ export function mapListingFromApi(listing) {
     tags: [listing.status === "approved" ? "Admin approved" : "Pending review", listing.moderation?.verdict ? `AI: ${listing.moderation.verdict}` : "AI checked", "Verified flow"]
   };
 }
+
+export async function fetchAdminDashboard(idToken) {
+  const response = await fetch(`${API_BASE}/admin/dashboard`, {
+    headers: { Authorization: `Bearer ${idToken}` }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Admin dashboard unavailable");
+  return data;
+}
+
+export async function fetchPendingListings(idToken) {
+  const response = await fetch(`${API_BASE}/admin/listings/pending`, {
+    headers: { Authorization: `Bearer ${idToken}` }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Pending listings unavailable");
+  return data;
+}
+
+export async function decideListing(listingId, decision, idToken, reason = "") {
+  const response = await fetch(`${API_BASE}/admin/listings/${listingId}/decision`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`
+    },
+    body: JSON.stringify({ decision, reason })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Admin decision failed");
+  return data;
+}

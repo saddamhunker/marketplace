@@ -996,3 +996,21 @@ header {
     grid-template-columns: 1fr;
   }
 }
+
+.admin-actions,
+.decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  justify-content: flex-end;
+}
+
+.decision-actions button {
+  min-width: 5.6rem;
+}
+
+.admin-actions button:disabled,
+.decision-actions button:disabled {
+  cursor: wait;
+  opacity: .65;
+}

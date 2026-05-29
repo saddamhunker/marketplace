@@ -83,6 +83,18 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
+router.post("/claim-admin", requireAuth, async (req, res) => {
+  const ownerPhone = process.env.ADMIN_PHONE_NUMBER;
+  if (!ownerPhone || req.user.phoneNumber !== ownerPhone) {
+    return res.status(403).json({ message: "Admin claim is not allowed for this account" });
+  }
+
+  if (!req.user.roles.includes("admin")) req.user.roles.push("admin");
+  req.user.verification.identity = true;
+  await req.user.save();
+  res.json({ user: req.user });
+});
+
 router.get("/me", requireAuth, (req, res) => {
   res.json({ user: req.user });
 });
