@@ -1,0 +1,17 @@
+{
+  "name": "trustloop-marketplace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Trusted marketplace website and mobile app scaffold focused on verification, moderation, and scam prevention.",
+  "scripts": {
+    "dev": "concurrently \"npm:dev --prefix client\" \"npm:dev --prefix server\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
