@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { createServer } from "node:http";
+import mongoose from "mongoose";
 import { Server } from "socket.io";
 import { connectDatabase } from "./config/database.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -30,7 +31,11 @@ app.use(express.json({ limit: "2mb" }));
 app.use(rateLimit({ windowMs: 60_000, limit: 140 }));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "trustloop-api" });
+  res.json({
+    status: "ok",
+    service: "trustloop-api",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
 });
 
 app.use("/api/auth", authRoutes);
@@ -49,13 +54,14 @@ io.on("connection", (socket) => {
 
 const port = process.env.PORT ?? 8080;
 
+httpServer.listen(port, () => {
+  console.log(`TrustLoop API running on http://localhost:${port}`);
+});
+
 connectDatabase()
   .then(() => {
-    httpServer.listen(port, () => {
-      console.log(`TrustLoop API running on http://localhost:${port}`);
-    });
+    console.log("Database connected");
   })
   .catch((error) => {
-    console.error("Database connection failed", error);
-    process.exit(1);
+    console.error("Database connection failed. API is running in degraded mode.", error.message);
   });
