@@ -1,104 +1,71 @@
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
-};
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+const storageKey = "trustloop-auth-session";
 
-export const isFirebaseReady = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain);
-const sdkVersion = "11.10.0";
+export const isFirebaseReady = true;
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) {
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = src;
-    script.async = true;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error(`Failed to load ${src}`));
-    document.head.appendChild(script);
-  });
+function wrapSession(session) {
+  if (!session?.token || !session?.user) return null;
+  return {
+    ...session.user,
+    phoneNumber: session.user.phoneNumber,
+    getIdToken: async () => session.token
+  };
 }
 
-export async function getFirebaseAuth() {
-  if (!isFirebaseReady) throw new Error("Firebase is not configured");
-
-  await loadScript(`https://www.gstatic.com/firebasejs/${sdkVersion}/firebase-app-compat.js`);
-  await loadScript(`https://www.gstatic.com/firebasejs/${sdkVersion}/firebase-auth-compat.js`);
-
-  if (!window.firebase.apps.length) {
-    window.firebase.initializeApp(firebaseConfig);
+function readSession() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey));
+  } catch {
+    return null;
   }
+}
 
-  return window.firebase.auth();
+function saveSession(session) {
+  localStorage.setItem(storageKey, JSON.stringify(session));
+  window.dispatchEvent(new Event("trustloop-auth-change"));
 }
 
 export function watchAuthState(callback) {
-  if (!isFirebaseReady || typeof window === "undefined") return () => {};
-
-  let unsubscribe = () => {};
-  getFirebaseAuth()
-    .then((auth) => {
-      unsubscribe = auth.onAuthStateChanged(callback);
-    })
-    .catch(() => callback(null));
-
-  return () => unsubscribe();
+  const emit = () => callback(wrapSession(readSession()));
+  emit();
+  window.addEventListener("trustloop-auth-change", emit);
+  window.addEventListener("storage", emit);
+  return () => {
+    window.removeEventListener("trustloop-auth-change", emit);
+    window.removeEventListener("storage", emit);
+  };
 }
 
-export function resetRecaptcha(containerId = "firebase-recaptcha") {
-  try {
-    window.trustloopRecaptchaVerifier?.clear();
-  } catch {
-    // Firebase can throw if the widget was already removed with the modal.
-  }
-
-  window.trustloopRecaptchaVerifier = null;
-  window.trustloopRecaptchaContainerId = null;
-
-  const element = document.getElementById(containerId);
-  if (element) element.innerHTML = "";
-}
-
-export async function ensureRecaptcha(containerId = "firebase-recaptcha") {
-  await getFirebaseAuth();
-
-  const element = document.getElementById(containerId);
-  if (!element) throw new Error("reCAPTCHA container is not ready");
-
-  if (window.trustloopRecaptchaVerifier && window.trustloopRecaptchaContainerId === containerId) {
-    return window.trustloopRecaptchaVerifier;
-  }
-
-  resetRecaptcha(containerId);
-
-  window.trustloopRecaptchaVerifier = new window.firebase.auth.RecaptchaVerifier(containerId, {
-    size: "invisible"
-  });
-  window.trustloopRecaptchaContainerId = containerId;
-
-  await window.trustloopRecaptchaVerifier.render();
-  return window.trustloopRecaptchaVerifier;
+export function resetRecaptcha() {
+  // Custom OTP does not use Firebase reCAPTCHA.
 }
 
 export async function sendPhoneOtp(phoneNumber) {
-  const auth = await getFirebaseAuth();
-  const verifier = await ensureRecaptcha();
-  return auth.signInWithPhoneNumber(phoneNumber, verifier);
+  const response = await fetch(`${API_BASE}/auth/request-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phoneNumber })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "OTP request failed");
+  return { phoneNumber, ...data };
 }
 
 export async function confirmPhoneOtp(confirmationResult, otp) {
-  return confirmationResult.confirm(otp);
+  const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phoneNumber: confirmationResult.phoneNumber, otp })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "OTP verification failed");
+  saveSession(data);
+  return data;
 }
 
 export async function logoutFirebaseUser() {
-  const auth = await getFirebaseAuth();
-  await auth.signOut();
+  localStorage.removeItem(storageKey);
+  window.dispatchEvent(new Event("trustloop-auth-change"));
 }

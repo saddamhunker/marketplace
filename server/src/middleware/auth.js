@@ -1,10 +1,22 @@
 import { getFirebaseAdmin } from "../config/firebase.js";
 import { User } from "../models/User.js";
+import { verifyAuthToken } from "../services/token.service.js";
 
 export async function requireAuth(req, res, next) {
   try {
     const token = req.headers.authorization?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ message: "Missing auth token" });
+
+    try {
+      const payload = verifyAuthToken(token);
+      const user = await User.findById(payload.sub);
+      if (!user) return res.status(401).json({ message: "Invalid auth token" });
+      req.user = user;
+      req.authPayload = payload;
+      return next();
+    } catch {
+      // Fall through to Firebase Admin verification for older Firebase sessions.
+    }
 
     const firebaseUser = await getFirebaseAdmin().auth().verifyIdToken(token);
     const user = await User.findOneAndUpdate(

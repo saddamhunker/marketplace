@@ -239,7 +239,7 @@ function AuthModal({ onClose }) {
     try {
       const result = await sendPhoneOtp(phoneNumber.trim());
       setConfirmationResult(result);
-      setStatus("OTP sent. Check your phone.");
+      setStatus(result.devOtp ? `Development OTP: ${result.devOtp}` : "OTP sent. Check your phone.");
     } catch (error) {
       setStatus(getOtpErrorMessage(error));
     } finally {
@@ -280,7 +280,7 @@ function AuthModal({ onClose }) {
 
         {!isFirebaseReady && (
           <div className="auth-warning">
-            Firebase config is missing. Add the Vite Firebase values and restart the frontend.
+            OTP service is not configured. Check backend API settings.
           </div>
         )}
 
@@ -308,7 +308,6 @@ function AuthModal({ onClose }) {
             </label>
           )}
 
-          <div id="firebase-recaptcha" />
           {status && <p className="auth-status">{status}</p>}
 
           <button className="primary-button large" disabled={loading || !isFirebaseReady}>
@@ -324,7 +323,7 @@ function getOtpErrorMessage(error) {
   const code = error?.code || "";
 
   if (code.includes("configuration-not-found")) {
-    return "Firebase Phone Authentication is not enabled yet, or this domain is not authorized. Enable Phone sign-in and add localhost/127.0.0.1 in Firebase Authentication settings.";
+    return "OTP service is not ready. Check backend SMS provider settings.";
   }
 
   if (code.includes("invalid-phone-number")) {
@@ -339,7 +338,7 @@ function getOtpErrorMessage(error) {
     return "OTP code is incorrect. Please check the SMS and try again.";
   }
 
-  return error?.message || "OTP request failed.";
+  return error?.message || "OTP request failed. Check phone number or SMS provider settings.";
 }
 
 function Hero({ listings }) {
