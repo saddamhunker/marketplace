@@ -8,6 +8,7 @@ import {
   ChartNoAxesCombined,
   Check,
   ChevronRight,
+  HeartHandshake,
   Home,
   MapPin,
   PackageCheck,
@@ -115,6 +116,117 @@ const demoListings = [
   }
 ];
 
+
+const platformModules = [
+  {
+    title: "Buy / Sell Marketplace",
+    body: "Mobiles, cars, bikes, properties, furniture, plots, and daily-use products with admin approval.",
+    icon: Store,
+    stat: "Products"
+  },
+  {
+    title: "Local Shop & Business",
+    body: "Hotels, restaurants, hospitals, shops, plots, offices, and local businesses can create profiles.",
+    icon: Building2,
+    stat: "Businesses"
+  },
+  {
+    title: "Worker Listing",
+    body: "Electrician, plumber, mechanic, carpenter, painter, labour, driver, and other worker profiles.",
+    icon: Wrench,
+    stat: "Workers"
+  }
+];
+
+const businessListings = [
+  {
+    name: "Green Leaf Restaurant",
+    type: "Restaurant",
+    location: "Kochi",
+    rating: "4.8",
+    icon: Utensils,
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80",
+    tags: ["Family dining", "Verified owner", "Open today"]
+  },
+  {
+    name: "CarePlus Hospital",
+    type: "Hospital",
+    location: "Ernakulam",
+    rating: "4.7",
+    icon: Stethoscope,
+    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=80",
+    tags: ["Emergency", "Doctor profile", "Phone verified"]
+  },
+  {
+    name: "Airport Road Plot",
+    type: "Plot / Property",
+    location: "Aluva",
+    rating: "Docs",
+    icon: Home,
+    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80",
+    tags: ["Owner listed", "Map location", "Documents ready"]
+  }
+];
+
+const workerProfiles = [
+  {
+    name: "Rafiq Ansari",
+    role: "Electrician",
+    city: "Kakkanad",
+    rating: "4.9",
+    jobs: "186 jobs",
+    image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=900&q=80",
+    skills: ["Wiring", "Inverter", "Emergency visit"]
+  },
+  {
+    name: "Sameer Khan",
+    role: "AC / Fridge Repair",
+    city: "Kochi",
+    rating: "4.8",
+    jobs: "122 jobs",
+    image: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=900&q=80",
+    skills: ["AC service", "Cooling issue", "Gas refill"]
+  },
+  {
+    name: "Anil Kumar",
+    role: "Carpenter",
+    city: "Ernakulam",
+    rating: "4.7",
+    jobs: "98 jobs",
+    image: "https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=900&q=80",
+    skills: ["Furniture", "Door repair", "Interior"]
+  }
+];
+
+const latestFeed = [
+  {
+    author: "Rafiq Electrical Works",
+    profile: "Worker profile",
+    type: "photo",
+    title: "New apartment wiring completed",
+    location: "Kakkanad",
+    image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=900&q=80",
+    badge: "Latest work"
+  },
+  {
+    author: "Green Leaf Restaurant",
+    profile: "Business profile",
+    type: "video",
+    title: "Today special kitchen update",
+    location: "Kochi",
+    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80",
+    badge: "Video post"
+  },
+  {
+    author: "TrustLoop Seller",
+    profile: "Seller profile",
+    type: "photo",
+    title: "Honda Activa fresh photos uploaded",
+    location: "Ernakulam",
+    image: "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?auto=format&fit=crop&w=900&q=80",
+    badge: "Product update"
+  }
+];
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -326,13 +438,13 @@ function Hero({ listings }) {
       <div className="flex flex-col justify-center">
         <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-3 py-2 text-sm text-cyan">
           <ShieldCheck className="size-4" />
-          Admin approved marketplace
+          MistriHub + TrustLoop demo
         </div>
         <h1 className="max-w-4xl text-5xl font-semibold leading-[1.03] tracking-normal text-white sm:text-6xl lg:text-7xl">
-          Buy and sell verified products with trust.
+          One trusted place for products, shops, businesses, and workers.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          Mobiles, cars, bikes, properties, and furniture. Every listing needs OTP login and admin approval before public view.
+          Buy or sell products, list a local business, create a worker profile, and post latest work photos or videos from one account.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <a href="#market" className="primary-button large">
@@ -457,6 +569,115 @@ function ListingCard({ listing, compact = false }) {
         </div>
       </div>
     </article>
+  );
+}
+
+
+function PlatformDemo() {
+  return (
+    <>
+      <section className="platform-overview" aria-label="Combined platform demo">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">One platform demo</p>
+            <h2>Marketplace, businesses, and workers in one app.</h2>
+            <p className="data-status">Review demo only. MistriHub live website is not changed.</p>
+          </div>
+        </div>
+        <div className="platform-grid">
+          {platformModules.map(({ title, body, icon: Icon, stat }) => (
+            <article className="platform-card" key={title}>
+              <div className="platform-icon"><Icon className="size-6" /></div>
+              <span>{stat}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="businesses" className="combined-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Local listings</p>
+            <h2>Shops, hotels, restaurants, hospitals, plots, and businesses.</h2>
+          </div>
+          <button className="secondary-button"><Building2 className="size-4" /> Add business</button>
+        </div>
+        <div className="profile-grid">
+          {businessListings.map((item) => (
+            <article className="profile-card" key={item.name}>
+              <img src={item.image} alt={item.name} />
+              <div className="profile-body">
+                <div className="profile-title-row">
+                  <div className="platform-icon small"><item.icon className="size-4" /></div>
+                  <span>{item.type}</span>
+                </div>
+                <h3>{item.name}</h3>
+                <p><MapPin className="size-4" /> {item.location} • {item.rating}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {item.tags.map((tag) => <span className="mini-tag" key={tag}>{tag}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="workers" className="combined-section alt-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Worker profiles</p>
+            <h2>Workers can show skills, ratings, city, and latest work.</h2>
+          </div>
+          <button className="secondary-button"><Wrench className="size-4" /> Add worker</button>
+        </div>
+        <div className="profile-grid">
+          {workerProfiles.map((worker) => (
+            <article className="worker-profile-card" key={worker.name}>
+              <img src={worker.image} alt={worker.name} />
+              <div>
+                <span className="category-label">{worker.role}</span>
+                <h3>{worker.name}</h3>
+                <p><MapPin className="size-4" /> {worker.city} • {worker.jobs}</p>
+                <strong><Star className="size-4 fill-amber text-amber" /> {worker.rating}</strong>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {worker.skills.map((skill) => <span className="mini-tag" key={skill}>{skill}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="feed" className="combined-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Latest feed</p>
+            <h2>Photo and video updates from shops, workers, sellers, and businesses.</h2>
+          </div>
+          <button className="primary-button"><Camera className="size-4" /> Upload post</button>
+        </div>
+        <div className="feed-grid">
+          {latestFeed.map((post) => (
+            <article className="feed-card" key={post.title}>
+              <div className="feed-media">
+                <img src={post.image} alt={post.title} />
+                <span>{post.type === "video" ? <PlayCircle className="size-4" /> : <Camera className="size-4" />} {post.badge}</span>
+              </div>
+              <div className="feed-body">
+                <p>{post.profile}</p>
+                <h3>{post.title}</h3>
+                <div className="feed-meta">
+                  <span><HeartHandshake className="size-4" /> {post.author}</span>
+                  <span><MapPin className="size-4" /> {post.location}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 
