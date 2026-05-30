@@ -4,6 +4,8 @@ import {
   AlertTriangle,
   BadgeCheck,
   Bell,
+  Building2,
+  Camera,
   Car,
   ChartNoAxesCombined,
   Check,
@@ -13,13 +15,17 @@ import {
   MapPin,
   PackageCheck,
   Phone,
+  PlayCircle,
   Search,
   ShieldCheck,
   SlidersHorizontal,
   Smartphone,
   Star,
   Store,
+  Stethoscope,
+  Utensils,
   Upload,
+  Wrench,
   X
 } from "lucide-react";
 import {
@@ -605,12 +611,12 @@ function PlatformDemo() {
           <button className="secondary-button"><Building2 className="size-4" /> Add business</button>
         </div>
         <div className="profile-grid">
-          {businessListings.map((item) => (
+          {businessListings.map(({ icon: BusinessIcon, ...item }) => (
             <article className="profile-card" key={item.name}>
               <img src={item.image} alt={item.name} />
               <div className="profile-body">
                 <div className="profile-title-row">
-                  <div className="platform-icon small"><item.icon className="size-4" /></div>
+                  <div className="platform-icon small"><BusinessIcon className="size-4" /></div>
                   <span>{item.type}</span>
                 </div>
                 <h3>{item.name}</h3>
@@ -953,6 +959,8 @@ function AdminDashboard({ firebaseUser }) {
   );
 }
 export default App;
+
+
 
 
 
