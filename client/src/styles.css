@@ -1014,3 +1014,11 @@ header {
   cursor: wait;
   opacity: .65;
 }
+
+.empty-state {
+  border: 1px dashed rgba(255, 255, 255, .16);
+  border-radius: .75rem;
+  color: var(--muted);
+  padding: 1rem;
+}
+

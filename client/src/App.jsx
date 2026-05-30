@@ -8,23 +8,17 @@ import {
   ChartNoAxesCombined,
   Check,
   ChevronRight,
-  Clock3,
-  Flag,
   Home,
   MapPin,
-  MessageCircle,
   PackageCheck,
   Phone,
   Search,
   ShieldCheck,
   SlidersHorizontal,
   Smartphone,
-  Sparkles,
   Star,
   Store,
   Upload,
-  Users,
-  WalletCards,
   X
 } from "lucide-react";
 import {
@@ -121,17 +115,6 @@ const demoListings = [
   }
 ];
 
-const moderationQueue = [
-  { item: "MacBook Air M2 below market price", risk: "High", signal: "Price 41% below local median", status: "Hold" },
-  { item: "Toyota Innova duplicate photo set", risk: "Medium", signal: "Image found in 3 previous listings", status: "Review" },
-  { item: "Plot near airport", risk: "Low", signal: "Location and ownership docs attached", status: "Approve" }
-];
-
-const disputes = [
-  { title: "Advance payment requested outside app", age: "18 min", priority: "Urgent" },
-  { title: "Product condition mismatch", age: "2 hr", priority: "Open" },
-  { title: "Seller not responding after offer accepted", age: "5 hr", priority: "Open" }
-];
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -186,7 +169,6 @@ function App() {
           <div className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
             <a href="#market">Marketplace</a>
             <a href="#sell">Sell</a>
-            <a href="#safety">Safety</a>
             <a href="#admin">Admin</a>
           </div>
           <div className="flex items-center gap-2">
@@ -211,11 +193,8 @@ function App() {
 
       <main id="top">
         <Hero listings={marketListings} />
-        <TrustStrip />
         <Marketplace listings={marketListings} dataStatus={dataStatus} />
         <SellFlow firebaseUser={firebaseUser} onListingCreated={handleLocalListingCreated} />
-        <SafetySystem />
-        <MobileAppPreview listings={marketListings} />
         <AdminDashboard firebaseUser={firebaseUser} />
       </main>
     </div>
@@ -347,35 +326,22 @@ function Hero({ listings }) {
       <div className="flex flex-col justify-center">
         <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-3 py-2 text-sm text-cyan">
           <ShieldCheck className="size-4" />
-          Admin approved listings with AI risk checks
+          Admin approved marketplace
         </div>
         <h1 className="max-w-4xl text-5xl font-semibold leading-[1.03] tracking-normal text-white sm:text-6xl lg:text-7xl">
-          AI-verified deals for mobiles, vehicles, property, and furniture.
+          Buy and sell verified products with trust.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          TrustLoop keeps every listing behind OTP, seller reputation, category proof, AI scam checks,
-          admin approval, safe chat, reports, and interest-based alerts before buyers trust the deal.
+          Mobiles, cars, bikes, properties, and furniture. Every listing needs OTP login and admin approval before public view.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <a href="#market" className="primary-button large">
             Explore trusted deals
             <ChevronRight className="size-5" />
           </a>
-          <a href="#admin" className="secondary-button large">
-            View admin controls
+          <a href="#sell" className="secondary-button large">
+            Sell product
           </a>
-        </div>
-        <div className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
-          {[
-            ["97%", "fraud signals caught before public view"],
-            ["Interest", "buyers get alerts by product and city"],
-            ["24/7", "reports and dispute queue"]
-          ].map(([value, label]) => (
-            <div className="metric" key={value}>
-              <strong>{value}</strong>
-              <span>{label}</span>
-            </div>
-          ))}
         </div>
       </div>
       <div className="hero-board" aria-label="Trusted marketplace preview">
@@ -389,39 +355,6 @@ function Hero({ listings }) {
             <ListingCard key={listing.title} listing={listing} compact />
           ))}
         </div>
-        <div className="trust-card">
-          <div>
-            <p className="eyebrow">AI moderation verdict</p>
-            <h3>Listing held for admin review</h3>
-            <p>Duplicate image detected and seller reputation dropped after two unresolved reports.</p>
-          </div>
-          <div className="risk-meter">
-            <span style={{ "--risk": "76%" }} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TrustStrip() {
-  return (
-    <section className="border-y border-white/10 bg-white/[0.03]">
-      <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
-        {[
-          [BadgeCheck, "Verified users", "OTP, KYC badge, face match, trusted seller score"],
-          [Flag, "Reports and disputes", "Escalation queue for fake products and unsafe behavior"],
-          [Bell, "Interested buyer alerts", "Users get notified for saved product and city interests"],
-          [MessageCircle, "Safe contact", "In-app chat, WhatsApp-only mode, hidden phone option"]
-        ].map(([Icon, title, body]) => (
-          <article className="feature-tile" key={title}>
-            <Icon className="size-5 text-mint" />
-            <div>
-              <h3>{title}</h3>
-              <p>{body}</p>
-            </div>
-          </article>
-        ))}
       </div>
     </section>
   );
@@ -599,13 +532,12 @@ function SellFlow({ firebaseUser, onListingCreated }) {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[.9fr_1.1fr] lg:px-8">
         <div>
           <p className="eyebrow">Seller flow</p>
-          <h2 className="section-title">Upload once. Go live only after verification.</h2>
+          <h2 className="section-title">Sell safely after approval.</h2>
           <p className="section-copy">
-            Sellers add photos, price, location, expiry, category, contact preference, and proof. The listing enters
-            AI checks first, then admin approval before it appears publicly.
+            Add product details, price, location, photos, contact choice, and proof. Admin approves it before buyers see it.
           </p>
           <div className="timeline">
-            {["OTP login", "Profile verification", "AI scam scan", "Admin approval", "Interest alerts"].map((step, index) => (
+            {["OTP login", "Add details", "Admin approval", "Go public"].map((step, index) => (
               <div className="timeline-step" key={step}>
                 <span>{index + 1}</span>
                 <p>{step}</p>
@@ -659,7 +591,7 @@ function SellFlow({ firebaseUser, onListingCreated }) {
             </label>
           </div>
           <div className="verification-panel">
-            <strong>{form.category} trust checklist</strong>
+            <strong>{form.category} checklist</strong>
             <div>
               {(categoryVerificationFields[form.category] || []).map((item) => (
                 <span key={item}><Check className="size-4" />{item}</span>
@@ -676,84 +608,6 @@ function SellFlow({ firebaseUser, onListingCreated }) {
             {submitting ? "Submitting..." : "Submit for approval"}
           </button>
         </form>
-      </div>
-    </section>
-  );
-}
-
-function SafetySystem() {
-  return (
-    <section id="safety" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">Trust engine</p>
-          <h2>Scam prevention built into every step</h2>
-        </div>
-      </div>
-      <div className="grid gap-5 lg:grid-cols-3">
-        {[
-          [ShieldCheck, "AI listing risk scan", "Checks duplicate images, suspicious pricing, spam text, risky contact phrases, and report history."],
-          [BadgeCheck, "Seller reputation", "Ratings, verified comments, dispute outcomes, account age, and successful deals combine into a score."],
-          [Flag, "Complaint handling", "Reports create admin cases with evidence, buyer notes, seller response, and resolution status."]
-        ].map(([Icon, title, body]) => (
-          <article className="safety-card" key={title}>
-            <Icon className="size-7 text-cyan" />
-            <h3>{title}</h3>
-            <p>{body}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function MobileAppPreview({ listings }) {
-  return (
-    <section className="bg-white/[0.025] py-14">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_.82fr] lg:px-8">
-        <div>
-          <p className="eyebrow">Mobile app</p>
-          <h2 className="section-title">Android-style buying flow with safer contact choices.</h2>
-          <p className="section-copy">
-            The mobile surface is optimized for fast discovery, city/product discovery, offer timers, verified seller signals,
-            chat notifications, and phone privacy controls.
-          </p>
-          <div className="app-feature-grid">
-            {["Push alerts", "In-app chat", "WhatsApp only", "Offer countdown", "Report seller", "Verified comments"].map((item) => (
-              <span key={item}><Check className="size-4" />{item}</span>
-            ))}
-          </div>
-        </div>
-        <div className="phone-shell">
-          <div className="phone-top" />
-          <div className="phone-screen">
-            <div className="mobile-header">
-              <div>
-                <small>Interested safe deals</small>
-                <strong>Kochi • Mobiles, Bikes, Cars</strong>
-              </div>
-              <Bell className="size-5 text-mint" />
-            </div>
-            <div className="mobile-search"><Search className="size-4" />Search city and product</div>
-            {listings.map((item) => (
-              <div className="mobile-listing" key={item.title}>
-                <img src={item.image} alt="" />
-                <div>
-                  <strong>{item.title}</strong>
-                  <span>{item.price} • {item.location}</span>
-                  <small><BadgeCheck className="size-3" /> Verified seller • Trust {item.score}</small>
-                </div>
-              </div>
-            ))}
-            <div className="mobile-tabbar">
-              <Home className="size-5" />
-              <Search className="size-5" />
-              <Upload className="size-5" />
-              <MessageCircle className="size-5" />
-              <Users className="size-5" />
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -841,24 +695,22 @@ function AdminDashboard({ firebaseUser }) {
             <AlertTriangle className="size-5 text-amber" />
             Pending approval queue
           </div>
-          {(pendingListings.length ? pendingListings : moderationQueue).map((row) => {
-            const isLiveListing = Boolean(row._id);
-            const risk = isLiveListing ? (row.moderation?.riskScore >= 70 ? "High" : row.moderation?.riskScore >= 30 ? "Medium" : "Low") : row.risk;
+          {pendingListings.length === 0 && (
+            <div className="empty-state">No pending listings right now.</div>
+          )}
+          {pendingListings.map((row) => {
+            const risk = row.moderation?.riskScore >= 70 ? "High" : row.moderation?.riskScore >= 30 ? "Medium" : "Low";
             return (
-              <div className="queue-row" key={row._id || row.item}>
+              <div className="queue-row" key={row._id}>
                 <div>
-                  <strong>{row.title || row.item}</strong>
-                  <span>{isLiveListing ? `${row.category} • ${row.location?.label || "No city"} • ${row.verificationDetails?.proofSummary || "Proof pending"}` : row.signal}</span>
+                  <strong>{row.title}</strong>
+                  <span>{`${row.category} • ${row.location?.label || "No city"} • ${row.verificationDetails?.proofSummary || "Proof pending"}`}</span>
                 </div>
                 <span className={`risk ${risk.toLowerCase()}`}>{risk}</span>
-                {isLiveListing ? (
-                  <div className="decision-actions">
-                    <button className="approve-button" onClick={() => handleDecision(row._id, "approve")} disabled={loading}>Approve</button>
-                    <button className="review-button" onClick={() => handleDecision(row._id, "reject")} disabled={loading}>Reject</button>
-                  </div>
-                ) : (
-                  <button className={row.status === "Approve" ? "approve-button" : "review-button"}>{row.status}</button>
-                )}
+                <div className="decision-actions">
+                  <button className="approve-button" onClick={() => handleDecision(row._id, "approve")} disabled={loading}>Approve</button>
+                  <button className="review-button" onClick={() => handleDecision(row._id, "reject")} disabled={loading}>Reject</button>
+                </div>
               </div>
             );
           })}
@@ -875,25 +727,11 @@ function AdminDashboard({ firebaseUser }) {
             <div><strong>{stats?.openReports ?? "--"}</strong><span>open reports</span></div>
           </div>
         </article>
-        <article className="admin-panel">
-          <div className="panel-title">
-            <Flag className="size-5 text-danger" />
-            Reports and disputes
-          </div>
-          {disputes.map((item) => (
-            <div className="dispute-row" key={item.title}>
-              <div>
-                <strong>{item.title}</strong>
-                <span>{item.age}</span>
-              </div>
-              <span>{item.priority}</span>
-            </div>
-          ))}
-        </article>
       </div>
     </section>
   );
 }
 export default App;
+
 
 
