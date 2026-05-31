@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-stone-50 pb-24 text-ink antialiased dark:bg-zinc-950 dark:text-zinc-100 lg:pb-0;
+}
+
+::selection {
+  @apply bg-saffron/30 text-ink;
+}
+
+.app-shell {
+  @apply min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,138,0,0.14),transparent_28rem),linear-gradient(180deg,#fff7ed_0%,#fafaf9_22%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.2),transparent_30rem),linear-gradient(180deg,#09090b_0%,#111827_52%,#0c0a09_100%)];
+}
+
+.section-pad {
+  @apply px-4 py-10 sm:px-6 lg:px-8;
+}
+
+.container-wide {
+  @apply mx-auto w-full max-w-7xl;
+}
+
+.glass {
+  @apply border border-white/70 bg-white/85 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/80;
+}
+
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-saffron focus:ring-offset-2 focus:ring-offset-stone-50 dark:focus:ring-offset-zinc-950;
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  12%, 88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.live-card {
+  animation: float-up 7s ease-in-out infinite;
+}
+
+@keyframes feed-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes soft-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.animate-soft-pop {
+  animation: soft-pop 560ms ease both;
+}
+
+.premium-card {
+  @apply relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-soft backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-white/10 dark:bg-zinc-900/90;
+}
+
+.premium-card::before {
+  content: "";
+  @apply pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-80 dark:via-white/30;
+}
+
+.live-scroll {
+  animation: feed-scroll 24s linear infinite;
+}
+
+.live-scroll:hover {
+  animation-play-state: paused;
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+.leaflet-container {
+  @apply h-full w-full bg-zinc-100 font-sans dark:bg-zinc-900;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.radar-user-dot {
+  @apply relative grid h-5 w-5 place-items-center rounded-full bg-blue-600 shadow-lg shadow-blue-500/40;
+}
+
+.radar-user-dot::before,
+.radar-user-dot::after {
+  content: "";
+  @apply absolute rounded-full border border-blue-500/55;
+  inset: -16px;
+  animation: radar-ring 2s ease-out infinite;
+}
+
+.radar-user-dot::after {
+  inset: -28px;
+  animation-delay: 700ms;
+}
+
+.radar-worker-dot {
+  @apply grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-mint text-xs font-black text-white shadow-xl shadow-emerald-500/30;
+}
+
+@keyframes radar-ring {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
