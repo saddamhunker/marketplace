@@ -58,7 +58,17 @@ export function AuthForm() {
       });
     }
 
-    window.location.href = role === "admin" ? "/admin" : "/dashboard";
+    let nextRole = role;
+
+    if (mode === "login") {
+      const profileResponse = await fetch("/api/profile").catch(() => null);
+      if (profileResponse?.ok) {
+        const payload = await profileResponse.json();
+        nextRole = payload?.data?.profile?.role ?? "user";
+      }
+    }
+
+    window.location.href = nextRole === "admin" ? "/admin" : "/dashboard";
   }
 
   return (

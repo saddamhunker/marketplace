@@ -134,7 +134,7 @@ export function WorkerCard({ worker, featured = false }: { worker: Worker; featu
       <div className="mt-4 grid grid-cols-3 gap-2">
         <a href={`tel:${worker.phone}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-zinc-100 p-3 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200" aria-label="Call worker"><Phone className="h-4 w-4" /></a>
         <a href={`https://wa.me/${worker.whatsapp}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-mint to-emerald-500 p-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20" aria-label="WhatsApp worker"><MessageCircle className="h-4 w-4" /></a>
-        <button className="focus-ring inline-flex items-center justify-center rounded-2xl bg-red-50 p-3 text-red-600 dark:bg-red-500/10" aria-label="Report scam"><Flag className="h-4 w-4" /></button>
+        <Link href={`/report?type=worker&id=${worker.id}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-red-50 p-3 text-red-600 dark:bg-red-500/10" aria-label="Report scam"><Flag className="h-4 w-4" /></Link>
       </div>
     </article>
   );
@@ -143,7 +143,12 @@ export function WorkerCard({ worker, featured = false }: { worker: Worker; featu
 export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="premium-card animate-soft-pop">
-      <Link href={`/products/${product.id}`} className={`block aspect-[4/3] bg-gradient-to-br ${product.imageTone}`}>
+      <Link href={`/products/${product.id}`} className={`relative block aspect-[4/3] overflow-hidden bg-gradient-to-br ${product.imageTone}`}>
+        {product.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img alt={product.title} className="absolute inset-0 h-full w-full object-cover" src={product.imageUrl} />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
         <div className="flex h-full items-end justify-between p-4">
           <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-ink shadow">{product.category}</span>
           <span className="rounded-full bg-ink/75 px-3 py-1 text-xs font-black text-white backdrop-blur"><Sparkles className="mr-1 inline h-3 w-3" />Deal</span>
@@ -164,7 +169,7 @@ export function ProductCard({ product }: { product: Product }) {
           <Link href={`/products/${product.id}`} className="flex-1 rounded-2xl bg-ink px-4 py-3 text-center text-sm font-bold text-white dark:bg-white dark:text-ink">
             Details
           </Link>
-          <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-mint to-emerald-500 px-4 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20"><MessageCircle className="h-4 w-4" /> Chat</button>
+          <Link href={`/products/${product.id}`} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-mint to-emerald-500 px-4 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20"><MessageCircle className="h-4 w-4" /> Contact</Link>
         </div>
       </div>
     </article>

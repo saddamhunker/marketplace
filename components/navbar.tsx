@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, ShieldCheck } from "lucide-react";
+import { AuthStatus } from "@/components/auth/auth-status";
 import { NotificationMenu } from "@/components/notification-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -42,9 +43,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <NotificationMenu />
           <ThemeToggle />
-          <Link href="/login" className="hidden rounded-2xl bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-saffron dark:bg-white dark:text-ink sm:inline-flex">
-            Login
-          </Link>
+          <AuthStatus />
           <button onClick={() => setOpen((value) => !value)} className="grid h-11 w-11 place-items-center rounded-2xl bg-zinc-100 xl:hidden dark:bg-zinc-900" aria-label="Open menu" aria-expanded={open}>
             <Menu className="h-5 w-5" />
           </button>

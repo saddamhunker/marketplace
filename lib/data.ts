@@ -64,6 +64,7 @@ export type Product = {
   sellerTrust: number;
   condition: string;
   imageTone: string;
+  imageUrl?: string;
   description: string;
 };
 

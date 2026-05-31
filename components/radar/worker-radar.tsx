@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker } from "leaflet";
 import { BadgeCheck, CheckCircle2, Clock, LocateFixed, MapPin, MessageCircle, Phone, Radio, ShieldCheck, XCircle } from "lucide-react";
 import { radarWorkers, type RadarWorker } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 const serviceTypes = ["Electrician", "Plumber", "Mechanic", "AC Repair", "Carpenter", "Delivery", "Labour"];
 const bookingSteps = ["Requested", "Accepted", "On The Way", "Arrived", "Completed"];
@@ -13,7 +15,53 @@ type BookingState = {
   serviceType: string;
   status: string;
   worker?: RadarWorker;
+  note?: string;
 };
+
+type RadarApiWorker = {
+  worker_profile_id?: string;
+  latitude?: number;
+  longitude?: number;
+  is_online?: boolean;
+  worker_profiles?: {
+    id?: string;
+    skill?: string;
+    profiles?: { full_name?: string | null; phone?: string | null; whatsapp?: string | null } | null;
+    trust_scores?: { score?: number | null } | null;
+  } | null;
+};
+
+function toRad(value: number) {
+  return (value * Math.PI) / 180;
+}
+
+function distanceKm(from: UserLocation, to: UserLocation) {
+  const radius = 6371;
+  const dLat = toRad(to.lat - from.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(from.lat)) * Math.cos(toRad(to.lat)) * Math.sin(dLng / 2) ** 2;
+  return Number((2 * radius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1));
+}
+
+function normalizeApiWorker(worker: RadarApiWorker, userLocation: UserLocation): RadarWorker {
+  const lat = worker.latitude ?? 28.6139;
+  const lng = worker.longitude ?? 77.209;
+  const km = distanceKm(userLocation, { lat, lng });
+  return {
+    id: worker.worker_profile_id ?? worker.worker_profiles?.id ?? `${lat}-${lng}`,
+    name: worker.worker_profiles?.profiles?.full_name ?? "Online Worker",
+    skill: worker.worker_profiles?.skill ?? "Worker",
+    rating: 4.7,
+    verified: Number(worker.worker_profiles?.trust_scores?.score ?? 70) >= 70,
+    phone: worker.worker_profiles?.profiles?.phone ?? "+91 98765 00000",
+    whatsapp: worker.worker_profiles?.profiles?.whatsapp ?? "919876500000",
+    lat,
+    lng,
+    distanceKm: km,
+    etaMinutes: Math.max(5, Math.round(km * 4)),
+    online: worker.is_online ?? true
+  };
+}
 
 export function WorkerRadar() {
   const mapNodeRef = useRef<HTMLDivElement | null>(null);
@@ -25,10 +73,11 @@ export function WorkerRadar() {
   const [serviceType, setServiceType] = useState(serviceTypes[0]);
   const [selectedWorker, setSelectedWorker] = useState<RadarWorker | null>(null);
   const [booking, setBooking] = useState<BookingState | null>(null);
+  const [workersSource, setWorkersSource] = useState<RadarWorker[]>(radarWorkers);
 
   const onlineWorkers = useMemo(
-    () => radarWorkers.filter((worker) => worker.online && worker.distanceKm <= radiusKm),
-    [radiusKm]
+    () => workersSource.filter((worker) => worker.online && worker.distanceKm <= radiusKm),
+    [radiusKm, workersSource]
   );
 
   useEffect(() => {
@@ -83,6 +132,39 @@ export function WorkerRadar() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+
+    async function loadOnlineWorkers() {
+      try {
+        const response = await fetch("/api/radar/workers", { cache: "no-store" });
+        const payload = await response.json().catch(() => ({}));
+        if (!active) return;
+
+        if (!response.ok || !Array.isArray(payload.data)) {
+          setWorkersSource(radarWorkers);
+          return;
+        }
+
+        const normalized = payload.data.map((worker: RadarApiWorker | RadarWorker) => {
+          if ("lat" in worker && "lng" in worker) return worker as RadarWorker;
+          return normalizeApiWorker(worker as RadarApiWorker, userLocation);
+        });
+        setWorkersSource(normalized.length ? normalized : radarWorkers);
+      } catch {
+        if (active) setWorkersSource(radarWorkers);
+      }
+    }
+
+    loadOnlineWorkers();
+    const interval = window.setInterval(loadOnlineWorkers, 30000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [userLocation]);
+
+  useEffect(() => {
     if (!mapRef.current) return;
 
     let cancelled = false;
@@ -127,17 +209,48 @@ export function WorkerRadar() {
     };
   }, [onlineWorkers, userLocation]);
 
-  function requestWorkerNow() {
+  async function requestWorkerNow() {
     const worker = onlineWorkers.find((item) => item.skill === serviceType) ?? onlineWorkers[0];
     setSelectedWorker(worker ?? null);
     setBooking({ serviceType, status: "Requested", worker });
 
+    try {
+      const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
+      const response = await fetch("/api/radar/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
+        body: JSON.stringify({
+          serviceType,
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          radiusKm
+        })
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setBooking({
+          serviceType,
+          status: "Requested",
+          worker,
+          note: response.status === 401 ? "Demo request shown. Real booking ke liye login required hai." : payload.error ?? "Booking API unavailable, WhatsApp/call fallback use karo."
+        });
+      } else {
+        setBooking({ serviceType, status: "Requested", worker, note: "Booking request saved. Nearby workers ko alert ready hai." });
+      }
+    } catch {
+      setBooking({ serviceType, status: "Requested", worker, note: "Network issue. Demo tracking aur WhatsApp fallback active hai." });
+    }
+
     window.setTimeout(() => {
-      if (worker) setBooking({ serviceType, status: "Accepted", worker });
+      if (worker) setBooking((current) => ({ serviceType, status: "Accepted", worker, note: current?.note }));
     }, 1200);
 
     window.setTimeout(() => {
-      if (worker) setBooking({ serviceType, status: "On The Way", worker });
+      if (worker) setBooking((current) => ({ serviceType, status: "On The Way", worker, note: current?.note }));
     }, 2600);
   }
 
@@ -227,6 +340,7 @@ export function WorkerRadar() {
                   <p className="text-sm text-zinc-500">Arriving in {booking.worker.etaMinutes} mins</p>
                 </div>
               ) : null}
+              {booking.note ? <p className="mt-3 rounded-2xl bg-saffron/10 p-3 text-xs font-bold text-amber-700 dark:text-amber-200">{booking.note}</p> : null}
             </>
           ) : (
             <div className="rounded-2xl bg-zinc-50 p-4 text-sm font-bold text-zinc-500 dark:bg-zinc-950/60">No active booking yet.</div>

@@ -2,7 +2,7 @@ import { created, serviceUnavailable, unauthorized, serverError } from "@/lib/ap
 import { getApiUser } from "@/lib/api/auth";
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser();
+  const { supabase, user } = await getApiUser(request);
 
   if (!supabase) return serviceUnavailable();
   if (!user) return unauthorized();

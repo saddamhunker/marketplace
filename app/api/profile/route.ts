@@ -1,8 +1,9 @@
 import { created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
+import { ensureProfile } from "@/lib/auth/ensure-profile";
 
-export async function GET() {
-  const { user, profile } = await getApiUser();
+export async function GET(request: Request) {
+  const { user, profile } = await getApiUser(request);
 
   if (!user) {
     return unauthorized();
@@ -12,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser();
+  const { supabase, user } = await getApiUser(request);
   if (!supabase) return serviceUnavailable();
 
   if (!user) {
@@ -20,24 +21,18 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { data, error } = await supabase
-    .from("profiles")
-    .upsert({
-      id: user.id,
-      full_name: body.fullName ?? user.email ?? "MistriHub User",
-      phone: body.phone ?? null,
-      whatsapp: body.whatsapp ?? null,
-      city: body.city ?? null,
-      area: body.area ?? null,
-      role: body.role ?? "user",
-      referral_code: body.referralCode ?? null
-    })
-    .select()
-    .single();
+  try {
+    const profile = await ensureProfile(user, {
+      fullName: body.fullName,
+      role: body.role,
+      phone: body.phone,
+      whatsapp: body.whatsapp,
+      city: body.city,
+      area: body.area
+    });
 
-  if (error) {
-    return serverError(error.message);
+    return created(profile);
+  } catch (error) {
+    return serverError(error instanceof Error ? error.message : "Profile setup failed");
   }
-
-  return created(data);
 }

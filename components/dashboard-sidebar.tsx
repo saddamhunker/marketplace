@@ -2,13 +2,13 @@ import Link from "next/link";
 import { BadgeIndianRupee, BarChart3, Bell, Gift, Settings, ShieldCheck, UserRound } from "lucide-react";
 
 const items = [
-  { label: "Overview", icon: BarChart3 },
-  { label: "Profile", icon: UserRound },
-  { label: "Rewards", icon: Gift },
-  { label: "Listings", icon: BadgeIndianRupee },
-  { label: "Alerts", icon: Bell },
-  { label: "Verification", icon: ShieldCheck },
-  { label: "Settings", icon: Settings }
+  { label: "Overview", href: "#overview", icon: BarChart3 },
+  { label: "Profile", href: "#profile", icon: UserRound },
+  { label: "Rewards", href: "#rewards", icon: Gift },
+  { label: "Listings", href: "#listings", icon: BadgeIndianRupee },
+  { label: "Alerts", href: "#alerts", icon: Bell },
+  { label: "Verification", href: "#verification", icon: ShieldCheck },
+  { label: "Settings", href: "#settings", icon: Settings }
 ];
 
 export function DashboardSidebar() {
@@ -23,7 +23,7 @@ export function DashboardSidebar() {
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.label} href="/dashboard" className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+            <Link key={item.label} href={`/dashboard${item.href}`} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-100 focus:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:focus:bg-zinc-800">
               <Icon className="h-4 w-4" />
               {item.label}
             </Link>

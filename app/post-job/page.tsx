@@ -1,5 +1,5 @@
-import { CalendarClock, IndianRupee, MapPin, Send } from "lucide-react";
-import { SelectField, TextAreaField, TextField } from "@/components/forms/form-fields";
+import { BellRing, MapPin, ShieldCheck } from "lucide-react";
+import { ListingPostForm } from "@/components/forms/listing-post-form";
 import { SectionHeader } from "@/components/ui";
 
 export const metadata = { title: "Post a Job" };
@@ -11,24 +11,22 @@ export default function PostJobPage() {
         <div>
           <SectionHeader eyebrow="Post Work" title="Get urgent help near you" description="Tell nearby verified workers what you need, when you need it, and your budget." />
           <div className="glass rounded-3xl p-5">
-            {["Electrician at 2km may reply in 4 min", "3 plumbers available today", "Scam report protection enabled"].map((item) => (
-              <p key={item} className="border-b border-zinc-100 py-3 text-sm font-bold last:border-0 dark:border-zinc-800">{item}</p>
-            ))}
+            {[
+              { icon: MapPin, text: "Electrician at 2km may reply in 4 min" },
+              { icon: BellRing, text: "Nearby workers can get instant alerts" },
+              { icon: ShieldCheck, text: "Scam report protection enabled" }
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <p key={item.text} className="flex items-center gap-3 border-b border-zinc-100 py-3 text-sm font-bold last:border-0 dark:border-zinc-800">
+                  <Icon className="h-4 w-4 text-saffron" />
+                  {item.text}
+                </p>
+              );
+            })}
           </div>
         </div>
-        <form className="glass grid gap-4 rounded-[2rem] p-5 sm:p-7">
-          <TextField label="Work title" placeholder="Fan repair, pipe leakage, house painting..." />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <SelectField label="Category" options={["Electrician", "Plumber", "Mechanic", "Painter", "Labour", "Other"]} />
-            <TextField label="Location" placeholder="Area, city" icon={<MapPin className="h-4 w-4" />} />
-          </div>
-          <TextAreaField placeholder="Describe the work, urgency, photos needed, preferred time..." />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField label="Budget" placeholder="Rs 500 - 1200" icon={<IndianRupee className="h-4 w-4" />} />
-            <TextField label="Needed by" placeholder="Today 6 PM" icon={<CalendarClock className="h-4 w-4" />} />
-          </div>
-          <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-4 text-sm font-black text-white dark:bg-white dark:text-ink"><Send className="h-4 w-4" /> Post Your Work</button>
-        </form>
+        <ListingPostForm mode="job" />
       </div>
     </section>
   );

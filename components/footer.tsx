@@ -24,7 +24,7 @@ export function Footer() {
         </div>
         {[
           { title: "Explore", items: [["Workers", "/workers"], ["Live Radar", "/radar"], ["Marketplace", "/marketplace"], ["Nearby Places", "/nearby-places"], ["Post a Job", "/post-job"], ["Post Product", "/post-product"]] },
-          { title: "Trust", items: [["Get Verified", "/dashboard"], ["Leaderboard", "/workers"], ["Report Scam", "/admin"], ["Reviews", "/#reviews"]] },
+          { title: "Trust", items: [["Get Verified", "/dashboard"], ["Leaderboard", "/workers"], ["Report Scam", "/report"], ["Reviews", "/#reviews"]] },
           { title: "Account", items: [["Login", "/login"], ["Join as Worker", "/login"], ["Dashboard", "/dashboard"], ["Admin Panel", "/admin"]] }
         ].map((group) => (
           <div key={group.title}>

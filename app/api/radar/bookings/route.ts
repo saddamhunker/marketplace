@@ -1,8 +1,8 @@
 import { created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
 
-export async function GET() {
-  const { supabase, user } = await getApiUser();
+export async function GET(request: Request) {
+  const { supabase, user } = await getApiUser(request);
 
   if (!supabase) return serviceUnavailable();
   if (!user) return unauthorized();
@@ -19,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser();
+  const { supabase, user } = await getApiUser(request);
 
   if (!supabase) return serviceUnavailable();
   if (!user) return unauthorized();

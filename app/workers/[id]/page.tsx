@@ -42,7 +42,7 @@ export default async function WorkerProfilePage({ params }: { params: DetailPara
             <a href={`tel:${worker.phone}`} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-black text-white dark:bg-white dark:text-ink"><Phone className="h-4 w-4" /> Call</a>
             <a href={`https://wa.me/${worker.whatsapp}`} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-mint px-4 py-3 text-sm font-black text-white"><MessageCircle className="h-4 w-4" /> WhatsApp</a>
           </div>
-          <button className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-600 dark:bg-red-500/10"><Flag className="h-4 w-4" /> Report scam</button>
+          <Link href={`/report?type=worker&id=${worker.id}`} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-600 dark:bg-red-500/10"><Flag className="h-4 w-4" /> Report scam</Link>
         </aside>
         <div className="space-y-6">
           <div className="glass rounded-[2rem] p-6">

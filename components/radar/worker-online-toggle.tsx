@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { LocateFixed, Power } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export function WorkerOnlineToggle() {
   const [online, setOnline] = useState(false);
@@ -13,17 +15,29 @@ export function WorkerOnlineToggle() {
     const sendLocation = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          setMessage("Online. Updating GPS every 30 seconds for low-cost tracking.");
-          await fetch("/api/radar/worker-status", {
+          const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
+          const response = await fetch("/api/radar/worker-status", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+            },
             body: JSON.stringify({
               isOnline: true,
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
               updateIntervalSeconds: 30
             })
-          }).catch(() => undefined);
+          });
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            setOnline(false);
+            setMessage(payload.error === "Worker profile required" ? "Worker profile required. Login as worker ya worker profile create karo." : payload.error ?? "Online status update failed.");
+            return;
+          }
+
+          setMessage("Online. Updating GPS every 30 seconds for low-cost tracking.");
         },
         () => setMessage("Location permission needed to go online.")
       );
@@ -39,11 +53,16 @@ export function WorkerOnlineToggle() {
     if (online) {
       setOnline(false);
       setMessage("Offline. You are hidden from the live radar.");
-      await fetch("/api/radar/worker-status", {
+      const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
+      const response = await fetch("/api/radar/worker-status", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
         body: JSON.stringify({ isOnline: false, latitude: 0, longitude: 0, updateIntervalSeconds: 30 })
       }).catch(() => undefined);
+      if (!response?.ok) setMessage("Offline locally. Server update login/worker profile ke bina save nahi hua.");
       return;
     }
 

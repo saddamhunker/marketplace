@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Clock, Flag, MapPinned, MessageCircle, Navigation, Phone, TicketPercent } from "lucide-react";
 import type { Business } from "@/lib/data";
 import { Rating, TrustBadge, TrustScoreBar, VerifiedBadge } from "@/components/ui";
@@ -55,7 +56,7 @@ export function BusinessCard({ business, compact = false }: { business: Business
             <a href={`tel:${business.phone}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-zinc-100 p-3 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200" aria-label="Call business"><Phone className="h-4 w-4" /></a>
             <a href={`https://wa.me/${business.whatsapp}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-mint to-emerald-500 p-3 text-white shadow-lg shadow-emerald-500/20" aria-label="WhatsApp business"><MessageCircle className="h-4 w-4" /></a>
             <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.name} ${business.location}`)}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200" aria-label="Map directions"><Navigation className="h-4 w-4" /></a>
-            <button className="focus-ring inline-flex items-center justify-center rounded-2xl bg-red-50 p-3 text-red-600 dark:bg-red-500/10" aria-label="Report business"><Flag className="h-4 w-4" /></button>
+            <Link href={`/report?type=business&id=${business.id}`} className="focus-ring inline-flex items-center justify-center rounded-2xl bg-red-50 p-3 text-red-600 dark:bg-red-500/10" aria-label="Report business"><Flag className="h-4 w-4" /></Link>
           </div>
         ) : null}
       </div>

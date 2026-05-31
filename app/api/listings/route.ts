@@ -1,8 +1,8 @@
-import { created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
+import { badRequest, created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
 
-export async function GET() {
-  const { supabase } = await getApiUser();
+export async function GET(request: Request) {
+  const { supabase } = await getApiUser(request);
   if (!supabase) return serviceUnavailable();
   const { data, error } = await supabase
     .from("listings")
@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser();
+  const { supabase, user } = await getApiUser(request);
   if (!supabase) return serviceUnavailable();
 
   if (!user) {
@@ -25,18 +25,26 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  if (!["product", "job", "business"].includes(body.type)) {
+    return badRequest("Valid listing type is required");
+  }
+
+  if (!body.title || !body.category || !body.location) {
+    return badRequest("Title, category, and location are required");
+  }
+
   const { data, error } = await supabase
     .from("listings")
     .insert({
       owner_id: user.id,
       type: body.type,
-      title: body.title,
-      category: body.category,
+      title: String(body.title).trim(),
+      category: String(body.category).trim(),
       description: body.description ?? null,
       price: body.price ?? null,
       price_label: body.priceLabel ?? null,
-      location: body.location,
-      images: body.images ?? []
+      location: String(body.location).trim(),
+      images: Array.isArray(body.images) ? body.images.slice(0, 4) : []
     })
     .select()
     .single();

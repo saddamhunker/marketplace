@@ -1,7 +1,7 @@
 import { Filter, Flame } from "lucide-react";
+import { MarketplaceGrid } from "@/components/marketplace/marketplace-grid";
 import { SearchBar } from "@/components/search-bar";
-import { ProductCard, SectionHeader } from "@/components/ui";
-import { products } from "@/lib/data";
+import { SectionHeader } from "@/components/ui";
 
 export const metadata = { title: "Buy/Sell Marketplace" };
 
@@ -23,9 +23,7 @@ export default function MarketplacePage() {
           <Flame className="h-5 w-5" />
           Bikes, mobiles, and furniture are trending in your area today.
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
+        <MarketplaceGrid />
       </div>
     </section>
   );
