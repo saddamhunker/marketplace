@@ -8,11 +8,19 @@ import { ReviewCard } from "@/components/review-card";
 import { SearchBar } from "@/components/search-bar";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
 import { byCategory, openBusinesses, shoppingBusinesses, trendingBusinesses } from "@/lib/business-selectors";
-import { businesses, leaderboard, products, reviews, stats, trustFactors, workers } from "@/lib/data";
+import { businesses, products, reviews, stats, trustFactors } from "@/lib/data";
+import { getSupabaseWorkers } from "@/lib/workers-data";
 
 const quickButtons = ["Need Electrician Now", "Need Plumber Now", "Need Mechanic Now", "Need Labour Today"];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function HomePage() {
+  const homeWorkers = await getSupabaseWorkers(8);
+  const topWorkers = homeWorkers
+    .filter((worker) => worker.level === "Elite" || worker.level === "Gold" || worker.trustScore >= 70)
+    .slice(0, 5);
   const restaurants = byCategory(businesses, "Restaurants");
   const nearbyShops = shoppingBusinesses(businesses);
   const openNow = openBusinesses(businesses);
@@ -99,8 +107,9 @@ export default function HomePage() {
         <div className="container-wide">
           <SectionHeader eyebrow="Nearby" title="Workers Ready Around You" description="Verified local professionals with ratings, level badges, response time, and direct contact." action={{ href: "/workers", label: "View all workers" }} />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {workers.slice(0, 8).map((worker, index) => <WorkerCard key={worker.id} worker={worker} featured={index < 3} />)}
+            {homeWorkers.map((worker, index) => <WorkerCard key={worker.id} worker={worker} featured={index < 3} />)}
           </div>
+          {!homeWorkers.length ? <p className="rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">Supabase workers abhi load nahi hue.</p> : null}
         </div>
       </section>
 
@@ -179,7 +188,7 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          <Leaderboard workers={leaderboard} />
+          <Leaderboard workers={topWorkers} />
         </div>
       </section>
 

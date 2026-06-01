@@ -1,9 +1,12 @@
 import { AlertTriangle, Boxes, Flag, ShieldCheck, UsersRound } from "lucide-react";
 import { AdminTable } from "@/components/admin-table";
 import { SectionHeader } from "@/components/ui";
-import { products, workers } from "@/lib/data";
+import { products } from "@/lib/data";
+import { getSupabaseWorkers } from "@/lib/workers-data";
 
 export const metadata = { title: "Admin Panel" };
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const adminStats = [
   { label: "Users", value: "42,318", icon: UsersRound },
@@ -12,8 +15,9 @@ const adminStats = [
   { label: "Open reports", value: "37", icon: AlertTriangle }
 ];
 
-export default function AdminPage() {
-  const workerRows = workers.slice(0, 6).map((worker) => ({ name: worker.name, type: worker.skill, status: worker.availability, score: `${worker.trustScore}/100` }));
+export default async function AdminPage() {
+  const workers = await getSupabaseWorkers(6);
+  const workerRows = workers.map((worker) => ({ name: worker.name, type: worker.skill, status: worker.availability, score: `${worker.trustScore}/100` }));
   const productRows = products.slice(0, 6).map((product) => ({ name: product.title, type: product.category, status: product.condition, score: `${product.sellerTrust}/100` }));
 
   return (

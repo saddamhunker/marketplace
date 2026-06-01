@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { WorkerCard } from "@/components/ui";
-import { workers, type Worker } from "@/lib/data";
+import type { Worker } from "@/lib/data";
 import { mapWorkerProfile, type WorkerProfileRow } from "@/lib/worker-mapper";
 
 export function WorkersGrid() {
@@ -20,14 +20,14 @@ export function WorkersGrid() {
         if (!active) return;
 
         if (!response.ok) {
-          setMessage("Live workers load nahi hue, demo workers dikh rahe hain.");
+          setMessage("Live workers load nahi hue. Supabase connection check karo.");
           return;
         }
 
         const rows = Array.isArray(payload.data) ? payload.data : [];
         setRemoteWorkers(rows.map((row: WorkerProfileRow) => mapWorkerProfile(row)));
       } catch {
-        if (active) setMessage("Network issue. Demo workers dikh rahe hain.");
+        if (active) setMessage("Network issue. Supabase workers load nahi hue.");
       }
     }
 
@@ -39,8 +39,7 @@ export function WorkersGrid() {
   }, []);
 
   const allWorkers = useMemo(() => {
-    const remoteIds = new Set(remoteWorkers.map((worker) => worker.id));
-    return remoteWorkers.length ? remoteWorkers : workers.filter((worker) => !remoteIds.has(worker.id));
+    return remoteWorkers;
   }, [remoteWorkers]);
 
   return (
@@ -52,6 +51,7 @@ export function WorkersGrid() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {allWorkers.map((worker) => <WorkerCard key={worker.id} worker={worker} featured={worker.trustScore > 92} />)}
       </div>
+      {!allWorkers.length && !message ? <p className="rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">Abhi live workers load ho rahe hain...</p> : null}
     </>
   );
 }
