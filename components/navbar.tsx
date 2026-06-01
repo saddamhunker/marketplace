@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, ShieldCheck } from "lucide-react";
 import { AuthStatus } from "@/components/auth/auth-status";
 import { NotificationMenu } from "@/components/notification-menu";
+import { WorkerOnlineToggle } from "@/components/radar/worker-online-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const links = [
@@ -30,7 +31,7 @@ export function Navbar() {
           </span>
           <span>
             <span className="block text-lg font-black leading-5">MistriHub Market</span>
-            <span className="text-xs font-bold text-zinc-500">Kaam Bhi. Market Bhi.</span>
+            <span className="text-xs font-bold text-zinc-500">Trusted People Nearby.</span>
           </span>
         </Link>
         <div className="hidden items-center gap-1 xl:flex">
@@ -42,6 +43,7 @@ export function Navbar() {
         </div>
         <div className="flex items-center gap-2">
           <NotificationMenu />
+          <WorkerOnlineToggle compact />
           <ThemeToggle />
           <AuthStatus />
           <button onClick={() => setOpen((value) => !value)} className="grid h-11 w-11 place-items-center rounded-2xl bg-zinc-100 xl:hidden dark:bg-zinc-900" aria-label="Open menu" aria-expanded={open}>

@@ -233,6 +233,9 @@ export type Database = {
           latitude: number;
           longitude: number;
           radius_km: number;
+          problem_description: string | null;
+          urgency: string;
+          media_label: string | null;
           status: BookingStatus;
           eta_minutes: number | null;
           accepted_at: string | null;

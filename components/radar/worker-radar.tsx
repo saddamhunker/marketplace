@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker } from "leaflet";
-import { BadgeCheck, CheckCircle2, Clock, LocateFixed, MapPin, MessageCircle, Phone, Radio, ShieldCheck, XCircle } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Clock, ImagePlus, LocateFixed, MapPin, MessageCircle, Phone, Radio, ShieldCheck, XCircle } from "lucide-react";
 import { workerCategories, type RadarWorker } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 const serviceTypes = workerCategories.map((category) => category.name);
 const bookingSteps = ["Requested", "Accepted", "On The Way", "Arrived", "Completed"];
+const urgencyOptions = ["Normal", "Urgent", "Emergency"];
 
 type UserLocation = { lat: number; lng: number };
 type BookingState = {
@@ -119,6 +120,9 @@ export function WorkerRadar() {
   const [locationStatus, setLocationStatus] = useState("Use your current location for accurate nearby workers.");
   const [radiusKm, setRadiusKm] = useState(5);
   const [serviceType, setServiceType] = useState(serviceTypes[0]);
+  const [problem, setProblem] = useState("");
+  const [urgency, setUrgency] = useState(urgencyOptions[1]);
+  const [mediaFileName, setMediaFileName] = useState("");
   const [selectedWorker, setSelectedWorker] = useState<RadarWorker | null>(null);
   const [booking, setBooking] = useState<BookingState | null>(null);
   const [workersSource, setWorkersSource] = useState<RadarWorker[]>([]);
@@ -324,6 +328,9 @@ export function WorkerRadar() {
           latitude: userLocation.lat,
           longitude: userLocation.lng,
           radiusKm,
+          problem,
+          urgency,
+          mediaLabel: mediaFileName,
           candidateWorkerIds: onlineWorkers
             .filter((item) => item.skill === serviceType)
             .map((item) => item.id)
@@ -345,7 +352,7 @@ export function WorkerRadar() {
           status: "Requested",
           worker,
           note: payload.data?.notifiedWorkers
-            ? `${payload.data.notifiedWorkers} worker ko request bheja. Worker accept karega tabhi Accepted/On The Way hoga.`
+            ? `${payload.data.notifiedWorkers} worker ko website alert bheja. WhatsApp quick-alert ready hai. Worker accept karega tabhi Accepted/On The Way hoga.`
             : "Booking saved, lekin matching worker request create nahi hui. Worker category/profile availability check karo."
         });
       }
@@ -419,10 +426,43 @@ export function WorkerRadar() {
               </button>
             ))}
           </div>
+          <div className="mt-4 grid gap-3">
+            <label className="grid gap-2 text-sm font-black">
+              Problem kya hai?
+              <textarea
+                value={problem}
+                onChange={(event) => setProblem(event.target.value)}
+                placeholder={`${serviceType} ka issue short mein likho...`}
+                className="min-h-24 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-saffron dark:border-zinc-800 dark:bg-zinc-950"
+              />
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {urgencyOptions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setUrgency(option)}
+                  className={`rounded-2xl px-3 py-3 text-xs font-black ${urgency === option ? "bg-red-500 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-zinc-300 bg-white px-4 py-3 text-sm font-black text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
+              <ImagePlus className="h-4 w-4 text-saffron" />
+              {mediaFileName || "Photo/video optional"}
+              <input
+                accept="image/*,video/*"
+                className="sr-only"
+                type="file"
+                onChange={(event) => setMediaFileName(event.target.files?.[0]?.name ?? "")}
+              />
+            </label>
+          </div>
           <button onClick={requestWorkerNow} className="mt-4 w-full rounded-[1.35rem] bg-gradient-to-r from-red-500 via-saffron to-rose-500 px-5 py-4 text-base font-black text-white shadow-xl shadow-red-500/20">
-            Need Worker Now
+            Post Emergency Request
           </button>
-          <p className="mt-3 text-xs font-semibold text-zinc-500">Sends instant alert to nearby workers. Live GPS gives exact distance; saved profile location gives approximate distance.</p>
+          <p className="mt-3 text-xs font-semibold text-zinc-500">Website alert nearby workers ko jayega. GPS off ho to saved profile location ke basis par alert jayega. WhatsApp quick-alert links fallback ke liye ready rahenge.</p>
         </div>
 
         <div className="premium-card p-5">

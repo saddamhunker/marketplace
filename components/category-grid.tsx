@@ -12,9 +12,7 @@ export function CategoryGrid() {
   return (
     <div className="space-y-5">
       <CategorySection
-        eyebrow="Local Worker Services"
         title="Book trusted workers near you"
-        description="Plumber, electrician, mechanic, driver, painter, labour and repair services."
         categories={workerCategories}
         hrefBase="/workers"
         previewCount={5}
@@ -23,9 +21,7 @@ export function CategoryGrid() {
       />
 
       <CategorySection
-        eyebrow="Marketplace Categories"
         title="Buy and sell local items"
-        description="Mobile, bike, car, furniture, property and other nearby deals."
         categories={marketplaceCategories}
         hrefBase="/marketplace"
         previewCount={4}
@@ -37,18 +33,14 @@ export function CategoryGrid() {
 }
 
 function CategorySection({
-  eyebrow,
   title,
-  description,
   categories,
   hrefBase,
   previewCount,
   showMore,
   onToggle
 }: {
-  eyebrow: string;
   title: string;
-  description: string;
   categories: CategoryItem[];
   hrefBase: "/workers" | "/marketplace";
   previewCount: number;
@@ -62,9 +54,7 @@ function CategorySection({
     <div className="rounded-[1.75rem] border border-zinc-200/80 bg-white/70 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/60 sm:p-4">
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-saffron">{eyebrow}</p>
           <h3 className="text-xl font-black text-ink dark:text-white">{title}</h3>
-          <p className="mt-1 text-sm font-semibold text-zinc-500">{description}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

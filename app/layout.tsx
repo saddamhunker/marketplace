@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: {
-    default: "MistriHub Market | Kaam Bhi. Market Bhi.",
+    default: "MistriHub Market | Trusted People Nearby.",
     template: "%s | MistriHub Market"
   },
   description:

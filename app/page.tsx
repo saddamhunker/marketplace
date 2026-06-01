@@ -62,7 +62,7 @@ export default async function HomePage() {
                   <p className="text-sm font-bold opacity-85">Local pulse</p>
                   <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-black">LIVE</span>
                 </div>
-                <h2 className="text-3xl font-black">Kaam Bhi. Market Bhi.</h2>
+                <h2 className="text-3xl font-black">Trusted Help Nearby.</h2>
                 <p className="mt-2 text-sm leading-6 opacity-90">Verified workers, safe deals, and urgent help within your area.</p>
               </div>
               <div className="-mt-10 grid gap-3 px-2 sm:grid-cols-2">

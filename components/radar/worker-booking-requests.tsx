@@ -30,6 +30,10 @@ export function WorkerBookingRequests() {
   const [requests, setRequests] = useState<WorkerBookingRequest[]>([]);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+  const latestPending = requests.find((request) => {
+    const booking = Array.isArray(request.instant_bookings) ? request.instant_bookings[0] : request.instant_bookings;
+    return request.status === "pending" && booking?.status === "requested";
+  });
 
   async function authHeaders(): Promise<Record<string, string>> {
     const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
@@ -85,6 +89,17 @@ export function WorkerBookingRequests() {
   }, [loadRequests]);
 
   return (
+    <>
+    {latestPending ? (
+      <div className="fixed inset-x-3 top-24 z-50 mx-auto max-w-md rounded-3xl border border-saffron/30 bg-white p-4 shadow-2xl dark:bg-zinc-950">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-saffron">New Instant Booking</p>
+        <p className="mt-1 text-lg font-black">{(Array.isArray(latestPending.instant_bookings) ? latestPending.instant_bookings[0] : latestPending.instant_bookings)?.service_type ?? "Service"} request aaya hai</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button onClick={() => updateRequest(latestPending.id, "accept")} className="rounded-2xl bg-mint px-4 py-3 text-sm font-black text-white">Accept</button>
+          <button onClick={() => updateRequest(latestPending.id, "reject")} className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-600 dark:bg-red-500/10">Reject</button>
+        </div>
+      </div>
+    ) : null}
     <div id="booking-requests" className="scroll-mt-28 glass rounded-[2rem] p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
@@ -150,5 +165,6 @@ export function WorkerBookingRequests() {
         ) : null}
       </div>
     </div>
+    </>
   );
 }
