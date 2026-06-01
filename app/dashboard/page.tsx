@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BadgeCheck, Bell, Eye, Gift, Megaphone, Plus, Settings, Share2, TrendingUp, UserRound } from "lucide-react";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Leaderboard } from "@/components/leaderboard";
+import { WorkerBookingRequests } from "@/components/radar/worker-booking-requests";
 import { WorkerOnlineToggle } from "@/components/radar/worker-online-toggle";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
 import { ServiceVideoUploadForm } from "@/components/videos/service-video-upload-form";
@@ -63,6 +64,8 @@ export default async function DashboardPage() {
           <div id="profile" className="scroll-mt-28">
             <WorkerOnlineToggle />
           </div>
+
+          <WorkerBookingRequests />
 
           <WorkerProfileForm />
 

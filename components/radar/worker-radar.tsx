@@ -12,6 +12,7 @@ const bookingSteps = ["Requested", "Accepted", "On The Way", "Arrived", "Complet
 
 type UserLocation = { lat: number; lng: number };
 type BookingState = {
+  id?: string;
   serviceType: string;
   status: string;
   worker?: RadarWorker;
@@ -45,6 +46,22 @@ type RadarApiWorker = {
     profiles?: { full_name?: string | null; phone?: string | null; whatsapp?: string | null } | null;
     trust_scores?: { score?: number | null } | null;
   } | null;
+};
+
+type BookingApiRow = {
+  id: string;
+  service_type: string;
+  status: "requested" | "accepted" | "on_the_way" | "arrived" | "completed" | "cancelled";
+  eta_minutes?: number | null;
+};
+
+const bookingStatusLabels: Record<BookingApiRow["status"], string> = {
+  requested: "Requested",
+  accepted: "Accepted",
+  on_the_way: "On The Way",
+  arrived: "Arrived",
+  completed: "Completed",
+  cancelled: "Cancelled"
 };
 
 function toRad(value: number) {
@@ -240,6 +257,51 @@ export function WorkerRadar() {
     };
   }, [onlineWorkers, userLocation]);
 
+  useEffect(() => {
+    if (!booking?.id || booking.status === "Completed" || booking.status === "Cancelled") return;
+
+    let active = true;
+    const bookingId = booking.id;
+
+    async function pollBooking() {
+      try {
+        const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
+        if (!session?.access_token) return;
+
+        const response = await fetch("/api/radar/bookings", {
+          cache: "no-store",
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!active || !response.ok || !Array.isArray(payload.data)) return;
+
+        const current = payload.data.find((item: BookingApiRow) => item.id === bookingId) as BookingApiRow | undefined;
+        if (!current) return;
+
+        const nextStatus = bookingStatusLabels[current.status];
+        setBooking((previous) => previous ? {
+          ...previous,
+          status: nextStatus,
+          note: current.status === "requested"
+            ? "Request sent. Worker accept karega tabhi booking lock hogi."
+            : current.status === "accepted"
+              ? "Worker accepted. Tracking ready hai."
+              : previous.note
+        } : previous);
+      } catch {
+        // Keep the current booking UI stable if polling fails.
+      }
+    }
+
+    pollBooking();
+    const interval = window.setInterval(pollBooking, 5000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [booking?.id, booking?.status]);
+
   async function requestWorkerNow() {
     const worker = onlineWorkers.find((item) => item.skill === serviceType) ?? onlineWorkers[0];
     if (!worker) {
@@ -247,7 +309,7 @@ export function WorkerRadar() {
       return;
     }
     setSelectedWorker(worker ?? null);
-    setBooking({ serviceType, status: "Requested", worker });
+    setBooking({ serviceType, status: "Requested", worker, note: "Request sending..." });
 
     try {
       const session = isSupabaseConfigured() ? (await createClient().auth.getSession()).data.session : null;
@@ -274,19 +336,17 @@ export function WorkerRadar() {
           note: response.status === 401 ? "Demo request shown. Real booking ke liye login required hai." : payload.error ?? "Booking API unavailable, WhatsApp/call fallback use karo."
         });
       } else {
-        setBooking({ serviceType, status: "Requested", worker, note: "Booking request saved. Nearby workers ko alert ready hai." });
+        setBooking({
+          id: payload.data?.booking?.id,
+          serviceType,
+          status: "Requested",
+          worker,
+          note: "Booking request sent. Worker accept karega tabhi Accepted/On The Way hoga."
+        });
       }
     } catch {
-      setBooking({ serviceType, status: "Requested", worker, note: "Network issue. Demo tracking aur WhatsApp fallback active hai." });
+      setBooking({ serviceType, status: "Requested", worker, note: "Network issue. Request save nahi hua; WhatsApp/call fallback use karo." });
     }
-
-    window.setTimeout(() => {
-      if (worker) setBooking((current) => ({ serviceType, status: "Accepted", worker, note: current?.note }));
-    }, 1200);
-
-    window.setTimeout(() => {
-      if (worker) setBooking((current) => ({ serviceType, status: "On The Way", worker, note: current?.note }));
-    }, 2600);
   }
 
   const activeWorker = booking?.worker ?? selectedWorker ?? onlineWorkers[0];

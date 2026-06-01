@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { BadgeIndianRupee, BarChart3, Bell, Film, Gift, Settings, ShieldCheck, UserRound } from "lucide-react";
+import { BadgeIndianRupee, BarChart3, Bell, CalendarClock, Film, Gift, Settings, ShieldCheck, UserRound } from "lucide-react";
 
 const items = [
   { label: "Overview", href: "#overview", icon: BarChart3 },
   { label: "Profile", href: "#profile", icon: UserRound },
+  { label: "Requests", href: "#booking-requests", icon: CalendarClock },
   { label: "Videos", href: "#videos", icon: Film },
   { label: "Rewards", href: "#rewards", icon: Gift },
   { label: "Listings", href: "#listings", icon: BadgeIndianRupee },
