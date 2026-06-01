@@ -6,7 +6,8 @@ import { WorkerOnlineToggle } from "@/components/radar/worker-online-toggle";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
 import { WorkerProfileForm } from "@/components/workers/worker-profile-form";
 import { getApiUser } from "@/lib/api/auth";
-import { leaderboard, products, workers } from "@/lib/data";
+import { products } from "@/lib/data";
+import { getSupabaseWorkers } from "@/lib/workers-data";
 
 export const metadata = { title: "Dashboard" };
 
@@ -19,6 +20,10 @@ const rewardCards = [
 
 export default async function DashboardPage() {
   const { profile, user } = await getApiUser();
+  const workers = await getSupabaseWorkers(6);
+  const topWorkers = workers
+    .filter((worker) => worker.level === "Elite" || worker.level === "Gold" || worker.trustScore >= 70)
+    .slice(0, 5);
   const displayName = profile?.full_name ?? user?.email ?? "MistriHub User";
   const role = profile?.role ?? "user";
 
@@ -72,7 +77,7 @@ export default async function DashboardPage() {
                 ))}
               </div>
             </div>
-            <Leaderboard workers={leaderboard} />
+            <Leaderboard workers={topWorkers} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

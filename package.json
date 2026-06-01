@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "seed:workers": "node scripts/seed-workers.mjs",
     "migrate:old-workers": "node scripts/migrate-old-workers.mjs"
   },
   "dependencies": {

@@ -150,29 +150,6 @@ export const businessCategories: { name: string; icon: LucideIcon; tone: string 
   { name: "Electronics shops", icon: ShoppingBag, tone: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-200" }
 ];
 
-export const workers: Worker[] = [
-  { id: "rajesh-electrician", name: "Rajesh Kumar", skill: "Electrician", location: "Lajpat Nagar, Delhi", distance: "1.8 km", rating: 4.9, reviews: 184, experience: "9 yrs", priceRange: "Rs 250-600", phone: "+91 98765 10101", whatsapp: "919876510101", trustScore: 96, jobsCompleted: 628, responseTime: "4 min", availability: "Available Now", level: "Elite", about: "Switch boards, inverter wiring, MCB repair, and emergency night calls with clean finishing." },
-  { id: "imran-plumber", name: "Imran Ansari", skill: "Plumber", location: "Indiranagar, Bengaluru", distance: "2.2 km", rating: 4.8, reviews: 151, experience: "7 yrs", priceRange: "Rs 199-700", phone: "+91 98765 10102", whatsapp: "919876510102", trustScore: 93, jobsCompleted: 511, responseTime: "6 min", availability: "Available Now", level: "Gold", about: "Leak repair, tap fitting, motor setup, bathroom line checks, and same-day service." },
-  { id: "sunita-painter", name: "Sunita Sharma", skill: "Painter", location: "Kothrud, Pune", distance: "3.0 km", rating: 4.9, reviews: 203, experience: "11 yrs", priceRange: "Rs 8-22/sq ft", phone: "+91 98765 10103", whatsapp: "919876510103", trustScore: 98, jobsCompleted: 742, responseTime: "8 min", availability: "Busy Today", level: "Elite", about: "Texture walls, waterproof coating, rental repainting, and color consultation." },
-  { id: "ravi-mechanic", name: "Ravi Verma", skill: "Bike Mechanic", location: "Gomti Nagar, Lucknow", distance: "1.1 km", rating: 4.7, reviews: 119, experience: "6 yrs", priceRange: "Rs 150-1200", phone: "+91 98765 10104", whatsapp: "919876510104", trustScore: 89, jobsCompleted: 386, responseTime: "5 min", availability: "Available Now", level: "Gold", about: "Doorstep bike repair, battery jump, puncture, oil change, and pickup support." },
-  { id: "balram-labour", name: "Balram Yadav", skill: "Labour Contractor", location: "Patna City, Patna", distance: "4.6 km", rating: 4.6, reviews: 88, experience: "12 yrs", priceRange: "Rs 600-900/day", phone: "+91 98765 10105", whatsapp: "919876510105", trustScore: 86, jobsCompleted: 332, responseTime: "12 min", availability: "Available Now", level: "Silver", about: "Daily wage labour team for shifting, construction, loading, and urgent site work." },
-  { id: "arif-ac", name: "Arif Khan", skill: "AC Technician", location: "Andheri West, Mumbai", distance: "2.9 km", rating: 4.8, reviews: 176, experience: "8 yrs", priceRange: "Rs 399-1800", phone: "+91 98765 10106", whatsapp: "919876510106", trustScore: 94, jobsCompleted: 557, responseTime: "7 min", availability: "Available Now", level: "Gold", about: "AC service, gas refill, deep cleaning, installation, and annual maintenance." },
-  { id: "meena-tailor", name: "Meena Devi", skill: "Tailor", location: "Vaishali, Jaipur", distance: "2.7 km", rating: 4.7, reviews: 97, experience: "10 yrs", priceRange: "Rs 120-950", phone: "+91 98765 10107", whatsapp: "919876510107", trustScore: 91, jobsCompleted: 408, responseTime: "14 min", availability: "Busy Today", level: "Gold", about: "Blouse fitting, alterations, school uniforms, and urgent festival orders." },
-  { id: "manoj-carpenter", name: "Manoj Tiwari", skill: "Carpenter", location: "Salt Lake, Kolkata", distance: "3.4 km", rating: 4.8, reviews: 132, experience: "13 yrs", priceRange: "Rs 350-2500", phone: "+91 98765 10108", whatsapp: "919876510108", trustScore: 92, jobsCompleted: 489, responseTime: "10 min", availability: "Available Now", level: "Gold", about: "Modular repair, shelves, doors, polish, and small furniture builds." },
-  { id: "pooja-cleaning", name: "Pooja Rani", skill: "Home Cleaning", location: "Sector 62, Noida", distance: "1.5 km", rating: 4.9, reviews: 211, experience: "5 yrs", priceRange: "Rs 499-2500", phone: "+91 98765 10109", whatsapp: "919876510109", trustScore: 95, jobsCompleted: 602, responseTime: "9 min", availability: "Available Now", level: "Elite", about: "Bathroom, kitchen, sofa, and full home cleaning with verified helpers." },
-  { id: "ganesh-driver", name: "Ganesh Pawar", skill: "Driver", location: "Hadapsar, Pune", distance: "5.2 km", rating: 4.6, reviews: 74, experience: "14 yrs", priceRange: "Rs 800-2200/day", phone: "+91 98765 10110", whatsapp: "919876510110", trustScore: 84, jobsCompleted: 280, responseTime: "18 min", availability: "Offline", level: "Silver", about: "City, outstation, wedding duty, and monthly driver service." },
-  { id: "naseem-mobile", name: "Naseem Ali", skill: "Mobile Repair", location: "Charminar, Hyderabad", distance: "0.9 km", rating: 4.8, reviews: 165, experience: "7 yrs", priceRange: "Rs 199-4500", phone: "+91 98765 10111", whatsapp: "919876510111", trustScore: 90, jobsCompleted: 456, responseTime: "6 min", availability: "Available Now", level: "Gold", about: "Screen, battery, charging port, software, and data transfer help." },
-  { id: "kavita-cook", name: "Kavita Solanki", skill: "Cook", location: "Satellite, Ahmedabad", distance: "2.4 km", rating: 4.7, reviews: 102, experience: "9 yrs", priceRange: "Rs 2500-8500/mo", phone: "+91 98765 10112", whatsapp: "919876510112", trustScore: 88, jobsCompleted: 319, responseTime: "16 min", availability: "Busy Today", level: "Silver", about: "Gujarati, Punjabi, Jain, tiffin prep, and party cooking." },
-  { id: "prakash-camera", name: "Prakash Sahu", skill: "CCTV Installer", location: "Raipur Junction, Raipur", distance: "3.8 km", rating: 4.6, reviews: 69, experience: "6 yrs", priceRange: "Rs 499-9000", phone: "+91 98765 10113", whatsapp: "919876510113", trustScore: 85, jobsCompleted: 244, responseTime: "20 min", availability: "Available Now", level: "Silver", about: "CCTV setup, DVR repair, Wi-Fi cameras, and shop security packages." },
-  { id: "jaspreet-welder", name: "Jaspreet Singh", skill: "Welder", location: "Model Town, Ludhiana", distance: "4.1 km", rating: 4.5, reviews: 57, experience: "16 yrs", priceRange: "Rs 500-6000", phone: "+91 98765 10114", whatsapp: "919876510114", trustScore: 82, jobsCompleted: 231, responseTime: "22 min", availability: "Available Now", level: "Bronze", about: "Gate, grill, shutter, railing, and on-site welding jobs." },
-  { id: "shahid-fridge", name: "Shahid Qureshi", skill: "Fridge Repair", location: "Bhopal New Market", distance: "2.1 km", rating: 4.7, reviews: 91, experience: "8 yrs", priceRange: "Rs 299-2500", phone: "+91 98765 10115", whatsapp: "919876510115", trustScore: 87, jobsCompleted: 297, responseTime: "11 min", availability: "Available Now", level: "Silver", about: "Cooling issue, compressor check, gas refill, and same-day diagnosis." },
-  { id: "deepa-beauty", name: "Deepa Nair", skill: "Beauty Service", location: "Kakkanad, Kochi", distance: "1.7 km", rating: 4.9, reviews: 143, experience: "6 yrs", priceRange: "Rs 299-3500", phone: "+91 98765 10116", whatsapp: "919876510116", trustScore: 92, jobsCompleted: 371, responseTime: "8 min", availability: "Busy Today", level: "Gold", about: "At-home grooming, bridal trial, facial, waxing, and party makeup." },
-  { id: "vivek-pest", name: "Vivek Maurya", skill: "Pest Control", location: "Rohini, Delhi", distance: "3.2 km", rating: 4.6, reviews: 82, experience: "5 yrs", priceRange: "Rs 799-4500", phone: "+91 98765 10117", whatsapp: "919876510117", trustScore: 83, jobsCompleted: 220, responseTime: "15 min", availability: "Available Now", level: "Bronze", about: "Cockroach, termite, bed bug, and home sanitization service." },
-  { id: "omkar-tutor", name: "Omkar Kulkarni", skill: "Home Tutor", location: "Nashik Road, Nashik", distance: "2.5 km", rating: 4.8, reviews: 110, experience: "4 yrs", priceRange: "Rs 350-900/hr", phone: "+91 98765 10118", whatsapp: "919876510118", trustScore: 90, jobsCompleted: 188, responseTime: "13 min", availability: "Offline", level: "Gold", about: "Maths and science for classes 6-10 with weekly progress reports." },
-  { id: "suresh-shifting", name: "Suresh Patel", skill: "Packers & Movers", location: "Vesu, Surat", distance: "5.8 km", rating: 4.5, reviews: 64, experience: "10 yrs", priceRange: "Rs 1200-18000", phone: "+91 98765 10119", whatsapp: "919876510119", trustScore: 81, jobsCompleted: 251, responseTime: "19 min", availability: "Available Now", level: "Bronze", about: "Local shifting, loading team, mini truck, and careful packing." },
-  { id: "farida-nurse", name: "Farida Sheikh", skill: "Elder Care", location: "Civil Lines, Nagpur", distance: "2.0 km", rating: 4.9, reviews: 125, experience: "9 yrs", priceRange: "Rs 700-1800/day", phone: "+91 98765 10120", whatsapp: "919876510120", trustScore: 97, jobsCompleted: 414, responseTime: "5 min", availability: "Available Now", level: "Elite", about: "Elder support, medicine reminders, patient care, and verified home assistance." }
-];
-
 export const products: Product[] = [
   { id: "hero-splendor-2021", title: "Hero Splendor Plus 2021", category: "Bike", price: "Rs 48,000", location: "Rohini, Delhi", posted: "3 mins ago", seller: "Vikram", sellerTrust: 91, condition: "Good", imageTone: "from-orange-300 to-red-500", description: "Single owner, all papers clear, recently serviced, average 60+ kmpl." },
   { id: "iphone-13", title: "iPhone 13 128GB", category: "Mobile", price: "Rs 34,500", location: "Borivali, Mumbai", posted: "12 mins ago", seller: "Aarti", sellerTrust: 88, condition: "Excellent", imageTone: "from-slate-200 to-slate-500", description: "Battery 88%, no repair history, box and cable included." },
@@ -216,9 +193,9 @@ export const businesses: Business[] = [
 ];
 
 export const liveFeed = [
-  "Electrician available 2km away",
+  "Verified electrician profile updated nearby",
   "Bike listed 3 mins ago",
-  "Painter completed 25 jobs",
+  "Painter completed a verified local job",
   "Plumber accepted urgent job in Noida",
   "Mobile repair expert got ID verified",
   "Furniture deal trending near you",
@@ -229,7 +206,7 @@ export const liveFeed = [
 ];
 
 export const reviews = [
-  { name: "Ankita S.", rating: 5, text: "Rajesh fixed the wiring issue within one hour. Verified profile helped me trust the booking.", city: "Delhi" },
+  { name: "Ankita S.", rating: 5, text: "The electrician fixed the wiring issue within one hour. Verified profile helped me trust the booking.", city: "Delhi" },
   { name: "Mohan P.", rating: 5, text: "Sold my bike in one day. The local buyer chat and seller score are very useful.", city: "Pune" },
   { name: "Fatima K.", rating: 4, text: "Good worker options nearby. Response time badges make shortlisting simple.", city: "Mumbai" },
   { name: "Rohit V.", rating: 5, text: "Posted urgent plumber work at night and got two calls quickly. Kaam ho gaya.", city: "Noida" },
@@ -240,10 +217,6 @@ export const reviews = [
   { name: "Kiran D.", rating: 4, text: "Clean UI, fast search, and nice Hindi-English copy. Feels made for local India.", city: "Surat" },
   { name: "Sneha R.", rating: 5, text: "Booked elder care support with verified documents. Very reassuring for family.", city: "Nagpur" }
 ];
-
-export const leaderboard = workers
-  .filter((worker) => worker.level === "Elite" || worker.level === "Gold")
-  .slice(0, 5);
 
 export const notifications = [
   "Someone viewed your profile",
@@ -269,13 +242,3 @@ export const stats = [
   { label: "Trust checks", value: "6-step", icon: Award }
 ];
 
-export const radarWorkers: RadarWorker[] = [
-  { id: "radar-rajesh", name: "Rajesh Kumar", skill: "Electrician", rating: 4.9, verified: true, phone: "+91 98765 10101", whatsapp: "919876510101", lat: 28.6139, lng: 77.2097, distanceKm: 1.2, etaMinutes: 8, online: true },
-  { id: "radar-imran", name: "Imran Ansari", skill: "Plumber", rating: 4.8, verified: true, phone: "+91 98765 10102", whatsapp: "919876510102", lat: 28.6212, lng: 77.2151, distanceKm: 2.4, etaMinutes: 12, online: true },
-  { id: "radar-ravi", name: "Ravi Verma", skill: "Mechanic", rating: 4.7, verified: true, phone: "+91 98765 10104", whatsapp: "919876510104", lat: 28.6025, lng: 77.1983, distanceKm: 3.7, etaMinutes: 16, online: true },
-  { id: "radar-arif", name: "Arif Khan", skill: "AC Repair", rating: 4.8, verified: true, phone: "+91 98765 10106", whatsapp: "919876510106", lat: 28.6315, lng: 77.1912, distanceKm: 5.8, etaMinutes: 22, online: true },
-  { id: "radar-manoj", name: "Manoj Tiwari", skill: "Carpenter", rating: 4.8, verified: true, phone: "+91 98765 10108", whatsapp: "919876510108", lat: 28.5847, lng: 77.2298, distanceKm: 7.6, etaMinutes: 28, online: true },
-  { id: "radar-balram", name: "Balram Yadav", skill: "Labour", rating: 4.6, verified: false, phone: "+91 98765 10105", whatsapp: "919876510105", lat: 28.6479, lng: 77.2254, distanceKm: 9.4, etaMinutes: 34, online: true },
-  { id: "radar-delivery", name: "Aman Rider", skill: "Delivery", rating: 4.7, verified: true, phone: "+91 98765 10121", whatsapp: "919876510121", lat: 28.6092, lng: 77.2381, distanceKm: 4.8, etaMinutes: 18, online: true },
-  { id: "radar-offline", name: "Ganesh Pawar", skill: "Driver", rating: 4.6, verified: true, phone: "+91 98765 10110", whatsapp: "919876510110", lat: 28.5942, lng: 77.1804, distanceKm: 8.9, etaMinutes: 31, online: false }
-];
