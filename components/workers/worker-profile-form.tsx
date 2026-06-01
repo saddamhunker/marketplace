@@ -15,9 +15,28 @@ export function WorkerProfileForm() {
   const [experienceYears, setExperienceYears] = useState("");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const [bio, setBio] = useState("");
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) {
+      setStatus("Browser location support nahi karta. Latitude/longitude manually add karo.");
+      return;
+    }
+
+    setStatus("Current location detect ho raha hai...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude.toFixed(6));
+        setLongitude(position.coords.longitude.toFixed(6));
+        setStatus("Profile location set. GPS off hone par yahi approximate distance ke liye use hoga.");
+      },
+      () => setStatus("Location permission nahi mila. Latitude/longitude manually add kar sakte ho.")
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,6 +58,8 @@ export function WorkerProfileForm() {
           experienceYears: Number(experienceYears || 0),
           priceMin: priceMin ? Number(priceMin) : null,
           priceMax: priceMax ? Number(priceMax) : null,
+          latitude: latitude ? Number(latitude) : null,
+          longitude: longitude ? Number(longitude) : null,
           availability: "Available Now"
         })
       });
@@ -76,7 +97,14 @@ export function WorkerProfileForm() {
         <TextField label="Experience years" placeholder="5" type="number" value={experienceYears} onChange={(event) => setExperienceYears(event.target.value)} />
         <TextField label="Minimum price" placeholder="250" type="number" icon={<IndianRupee className="h-4 w-4" />} value={priceMin} onChange={(event) => setPriceMin(event.target.value)} />
         <TextField label="Maximum price" placeholder="1200" type="number" icon={<IndianRupee className="h-4 w-4" />} value={priceMax} onChange={(event) => setPriceMax(event.target.value)} />
+        <TextField label="Latitude" placeholder="28.613900" value={latitude} onChange={(event) => setLatitude(event.target.value)} />
+        <TextField label="Longitude" placeholder="77.209000" value={longitude} onChange={(event) => setLongitude(event.target.value)} />
       </div>
+
+      <button type="button" onClick={useCurrentLocation} className="mt-4 inline-flex items-center justify-center gap-2 rounded-2xl bg-mint/10 px-4 py-3 text-sm font-black text-emerald-700 transition hover:bg-mint/15 dark:text-emerald-200">
+        <MapPin className="h-4 w-4" />
+        Use current location for profile
+      </button>
 
       <div className="mt-4">
         <TextAreaField placeholder="Short bio: kaunsa kaam karte ho, emergency service, timing..." value={bio} onChange={(event) => setBio(event.target.value)} />

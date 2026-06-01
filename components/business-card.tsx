@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { Clock, Flag, MapPinned, MessageCircle, Navigation, Phone, TicketPercent } from "lucide-react";
 import type { Business } from "@/lib/data";
 import { Rating, TrustBadge, TrustScoreBar, VerifiedBadge } from "@/components/ui";
+import { useBusinessDistance } from "@/components/business-distance";
 
 export function BusinessCard({ business, compact = false }: { business: Business; compact?: boolean }) {
+  const distance = useBusinessDistance(business);
+
   return (
     <article className="premium-card animate-soft-pop">
       <div className={`relative aspect-[4/3] bg-gradient-to-br ${business.imageTone}`}>
@@ -26,7 +31,7 @@ export function BusinessCard({ business, compact = false }: { business: Business
             <h3 className="truncate text-lg font-black">{business.name}</h3>
             <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-zinc-500">
               <MapPinned className="h-3.5 w-3.5 text-mint" />
-              {business.location} • {business.distance}
+              {business.location} • {distance}
             </p>
           </div>
           <TrustBadge score={business.trustScore} compact />

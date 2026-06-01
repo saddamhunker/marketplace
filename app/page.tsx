@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, HeartPulse, MapPin, Play, Sparkles, Store, TicketPercent, Utensils, Zap } from "lucide-react";
-import { BusinessCard } from "@/components/business-card";
 import { CategoryGrid } from "@/components/category-grid";
 import { Leaderboard } from "@/components/leaderboard";
+import { LocationAwareBusinessGrid } from "@/components/location-aware-business-grid";
 import { LiveFeed } from "@/components/live-feed";
 import { ReviewCard } from "@/components/review-card";
 import { SearchBar } from "@/components/search-bar";
@@ -127,9 +127,7 @@ export default async function HomePage() {
       <section className="section-pad">
         <div className="container-wide">
           <SectionHeader eyebrow="Places" title="Nearby Restaurants" description="Verified food spots with photos, reviews, offers, timings, directions, and quick WhatsApp." />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {restaurants.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} />)}
-          </div>
+          <LocationAwareBusinessGrid businesses={restaurants} limit={4} />
           <BottomSectionLink href="/nearby-places" label="Explore nearby places" />
         </div>
       </section>
@@ -137,9 +135,7 @@ export default async function HomePage() {
       <section className="section-pad">
         <div className="container-wide">
           <SectionHeader title="Nearby Shops" description="Daily-use shops, grocery, medical, hardware, electronics, and repair counters around your location." />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {nearbyShops.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} />)}
-          </div>
+          <LocationAwareBusinessGrid businesses={nearbyShops} limit={4} />
           <BottomSectionLink href="/nearby-places" label="View shops" />
         </div>
       </section>
@@ -199,9 +195,7 @@ export default async function HomePage() {
       <section className="section-pad">
         <div className="container-wide">
           <SectionHeader title="Trending Places Near You" description="Local places people are viewing, saving, calling, and visiting today." />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {trendingPlaces.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} compact />)}
-          </div>
+          <LocationAwareBusinessGrid businesses={trendingPlaces} limit={4} compact />
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {["Restaurants trending after 7 PM", "Medical stores open late", "Mobile repair shops getting calls", "Clinics with weekend offers"].map((item) => (
               <div key={item} className="glass flex items-center gap-3 rounded-3xl p-4">

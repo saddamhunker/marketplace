@@ -37,6 +37,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const latitude = body.latitude === null || body.latitude === "" || body.latitude === undefined ? null : Number(body.latitude);
+  const longitude = body.longitude === null || body.longitude === "" || body.longitude === undefined ? null : Number(body.longitude);
   const { data, error } = await supabase
     .from("worker_profiles")
     .upsert({
@@ -46,6 +48,8 @@ export async function POST(request: Request) {
       price_min: body.priceMin ?? null,
       price_max: body.priceMax ?? null,
       location: body.location,
+      latitude: typeof latitude === "number" && Number.isFinite(latitude) ? latitude : null,
+      longitude: typeof longitude === "number" && Number.isFinite(longitude) ? longitude : null,
       bio: body.bio ?? null,
       availability: body.availability ?? "Available Now"
     })

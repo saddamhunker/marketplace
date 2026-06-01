@@ -1,5 +1,6 @@
 import { Filter, Flame, MapPin, Search } from "lucide-react";
-import { BusinessCard } from "@/components/business-card";
+import { BusinessDistance } from "@/components/business-distance";
+import { LocationAwareBusinessGrid } from "@/components/location-aware-business-grid";
 import { SectionHeader } from "@/components/ui";
 import { openBusinesses, trendingBusinesses } from "@/lib/business-selectors";
 import { businessCategories, businesses } from "@/lib/data";
@@ -60,9 +61,7 @@ export default function NearbyPlacesPage() {
         <div className="mb-10 grid gap-6 lg:grid-cols-[1fr_0.75fr]">
           <div>
             <SectionHeader eyebrow="Open Now" title="Businesses Ready Right Now" description="Fast access to places currently open around you." />
-            <div className="grid gap-4 md:grid-cols-2">
-              {openNow.slice(0, 6).map((business) => <BusinessCard key={business.id} business={business} />)}
-            </div>
+            <LocationAwareBusinessGrid businesses={openNow} limit={6} className="grid gap-4 md:grid-cols-2" />
           </div>
           <div className="glass rounded-[2rem] p-5 lg:sticky lg:top-24 lg:h-fit">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-black"><Flame className="h-5 w-5 text-saffron" /> Trending Near You</h2>
@@ -72,7 +71,7 @@ export default function NearbyPlacesPage() {
                   <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-sm font-black text-white dark:bg-white dark:text-ink">#{index + 1}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-black">{business.name}</p>
-                    <p className="text-xs text-zinc-500">{business.category} • {business.distance}</p>
+                    <p className="text-xs text-zinc-500">{business.category} • <BusinessDistance business={business} /></p>
                   </div>
                   <span className="text-sm font-black text-saffron">{business.rating.toFixed(1)}</span>
                 </div>
@@ -82,9 +81,7 @@ export default function NearbyPlacesPage() {
         </div>
 
         <SectionHeader eyebrow="All Places" title="Hotels, Shops, Services & Deals" description="Every listing includes timings, photos, contact actions, reviews, trust score, directions, and report controls." />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {businesses.map((business) => <BusinessCard key={business.id} business={business} />)}
-        </div>
+        <LocationAwareBusinessGrid businesses={businesses} />
       </div>
     </section>
   );

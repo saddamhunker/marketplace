@@ -7,6 +7,8 @@ export type WorkerProfileRow = {
   price_min?: number | null;
   price_max?: number | null;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   distance_label?: string | null;
   bio?: string | null;
   level?: string | null;
@@ -29,6 +31,10 @@ export type WorkerProfileRow = {
 
 export function mapWorkerProfile(row: WorkerProfileRow): Worker {
   const liveLocation = Array.isArray(row.worker_live_locations) ? row.worker_live_locations[0] : row.worker_live_locations;
+  const latitude = liveLocation?.latitude ?? row.latitude ?? undefined;
+  const longitude = liveLocation?.longitude ?? row.longitude ?? undefined;
+  const hasLiveGps = Boolean(liveLocation?.is_online && typeof liveLocation.latitude === "number" && typeof liveLocation.longitude === "number");
+  const hasProfileLocation = typeof row.latitude === "number" && typeof row.longitude === "number";
   const priceRange = row.price_min || row.price_max
     ? `Rs ${row.price_min ?? 0}-${row.price_max ?? row.price_min}`
     : "Price on call";
@@ -38,7 +44,7 @@ export function mapWorkerProfile(row: WorkerProfileRow): Worker {
     name: row.profiles?.full_name ?? "MistriHub Worker",
     skill: row.skill,
     location: row.location,
-    distance: liveLocation?.latitude && liveLocation?.longitude ? "GPS ready" : "GPS pending",
+    distance: hasLiveGps ? "Live GPS" : hasProfileLocation ? "Approx location" : "Location pending",
     rating: 4.6,
     reviews: 0,
     experience: `${row.experience_years ?? 0} yrs`,
@@ -51,8 +57,8 @@ export function mapWorkerProfile(row: WorkerProfileRow): Worker {
     availability: row.availability === "Busy Today" || row.availability === "Offline" ? row.availability : "Available Now",
     level: row.level === "Silver" || row.level === "Gold" || row.level === "Elite" ? row.level : "Bronze",
     about: row.bio ?? "New verified local worker on MistriHub Market.",
-    latitude: liveLocation?.latitude ?? undefined,
-    longitude: liveLocation?.longitude ?? undefined,
+    latitude,
+    longitude,
     gpsOnline: liveLocation?.is_online ?? false
   };
 }

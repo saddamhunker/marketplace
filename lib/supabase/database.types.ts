@@ -57,6 +57,8 @@ export type Database = {
           price_min: number | null;
           price_max: number | null;
           location: string;
+          latitude: number | null;
+          longitude: number | null;
           distance_label: string | null;
           bio: string | null;
           level: string;

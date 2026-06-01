@@ -1,18 +1,25 @@
 import { ok, serviceUnavailable } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
-  const { supabase } = await getApiUser();
+  let supabase;
+
+  try {
+    supabase = createAdminClient();
+  } catch {
+    const context = await getApiUser();
+    supabase = context.supabase;
+  }
 
   if (!supabase) {
     return ok([], { headers: { "x-mistrihub-fallback": "supabase-not-configured" } });
   }
 
   const { data, error } = await supabase
-    .from("worker_live_locations")
-    .select("*, worker_profiles(id, skill, profiles(full_name, phone, whatsapp))")
-    .eq("is_online", true)
-    .order("last_seen_at", { ascending: false });
+    .from("worker_profiles")
+    .select("id, skill, availability, latitude, longitude, profiles(full_name, phone, whatsapp), worker_live_locations(latitude, longitude, is_online, last_seen_at)")
+    .order("created_at", { ascending: false });
 
   if (error) {
     return ok([], { headers: { "x-mistrihub-fallback": "radar-db-error" } });

@@ -90,6 +90,8 @@ export type Business = {
   verified: boolean;
   offer: string;
   trustScore: number;
+  latitude?: number;
+  longitude?: number;
   photos: string[];
   imageTone: string;
   trending: boolean;
@@ -109,6 +111,7 @@ export type RadarWorker = {
   distanceKm: number;
   etaMinutes: number;
   online: boolean;
+  locationSource?: "live" | "profile";
 };
 
 export type CategoryItem = { name: string; icon: LucideIcon; tone: string };
@@ -241,4 +244,3 @@ export const stats = [
   { label: "Avg. response", value: "9 min", icon: Clock },
   { label: "Trust checks", value: "6-step", icon: Award }
 ];
-

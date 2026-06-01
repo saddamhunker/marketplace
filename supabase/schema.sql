@@ -49,6 +49,8 @@ create table public.worker_profiles (
   price_min integer,
   price_max integer,
   location text not null,
+  latitude double precision,
+  longitude double precision,
   distance_label text,
   bio text,
   level text not null default 'Bronze',

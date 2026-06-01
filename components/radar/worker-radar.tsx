@@ -19,13 +19,29 @@ type BookingState = {
 };
 
 type RadarApiWorker = {
+  id?: string;
   worker_profile_id?: string;
+  skill?: string;
+  availability?: string;
   latitude?: number;
   longitude?: number;
   is_online?: boolean;
+  profiles?: { full_name?: string | null; phone?: string | null; whatsapp?: string | null } | null;
+  worker_live_locations?: {
+    latitude?: number | null;
+    longitude?: number | null;
+    is_online?: boolean | null;
+  }[] | {
+    latitude?: number | null;
+    longitude?: number | null;
+    is_online?: boolean | null;
+  } | null;
   worker_profiles?: {
     id?: string;
     skill?: string;
+    availability?: string;
+    latitude?: number | null;
+    longitude?: number | null;
     profiles?: { full_name?: string | null; phone?: string | null; whatsapp?: string | null } | null;
     trust_scores?: { score?: number | null } | null;
   } | null;
@@ -44,24 +60,37 @@ function distanceKm(from: UserLocation, to: UserLocation) {
 }
 
 function normalizeApiWorker(worker: RadarApiWorker, userLocation: UserLocation): RadarWorker | null {
-  if (typeof worker.latitude !== "number" || typeof worker.longitude !== "number") return null;
+  const liveLocation = Array.isArray(worker.worker_live_locations) ? worker.worker_live_locations[0] : worker.worker_live_locations;
+  const liveLat = liveLocation?.is_online && typeof liveLocation.latitude === "number" ? liveLocation.latitude : undefined;
+  const liveLng = liveLocation?.is_online && typeof liveLocation.longitude === "number" ? liveLocation.longitude : undefined;
+  const directLiveLat = worker.is_online && typeof worker.latitude === "number" ? worker.latitude : undefined;
+  const directLiveLng = worker.is_online && typeof worker.longitude === "number" ? worker.longitude : undefined;
+  const profileLat = typeof worker.latitude === "number" ? worker.latitude : worker.worker_profiles?.latitude ?? undefined;
+  const profileLng = typeof worker.longitude === "number" ? worker.longitude : worker.worker_profiles?.longitude ?? undefined;
+  const lat = directLiveLat ?? liveLat ?? profileLat;
+  const lng = directLiveLng ?? liveLng ?? profileLng;
 
-  const lat = worker.latitude;
-  const lng = worker.longitude;
+  if (typeof lat !== "number" || typeof lng !== "number") return null;
+
   const km = distanceKm(userLocation, { lat, lng });
+  const locationSource = directLiveLat !== undefined || liveLat !== undefined ? "live" : "profile";
+  const profile = worker.profiles ?? worker.worker_profiles?.profiles ?? null;
+  const online = locationSource === "live" || worker.availability === "Available Now" || worker.worker_profiles?.availability === "Available Now";
+
   return {
-    id: worker.worker_profile_id ?? worker.worker_profiles?.id ?? `${lat}-${lng}`,
-    name: worker.worker_profiles?.profiles?.full_name ?? "Online Worker",
-    skill: worker.worker_profiles?.skill ?? "Worker",
+    id: worker.id ?? worker.worker_profile_id ?? worker.worker_profiles?.id ?? `${lat}-${lng}`,
+    name: profile?.full_name ?? "Online Worker",
+    skill: worker.skill ?? worker.worker_profiles?.skill ?? "Worker",
     rating: 4.7,
     verified: Number(worker.worker_profiles?.trust_scores?.score ?? 70) >= 70,
-    phone: worker.worker_profiles?.profiles?.phone ?? "+91 98765 00000",
-    whatsapp: worker.worker_profiles?.profiles?.whatsapp ?? "919876500000",
+    phone: profile?.phone ?? "+91 98765 00000",
+    whatsapp: profile?.whatsapp ?? "919876500000",
     lat,
     lng,
     distanceKm: km,
     etaMinutes: Math.max(5, Math.round(km * 4)),
-    online: worker.is_online ?? true
+    online,
+    locationSource
   };
 }
 
@@ -197,7 +226,7 @@ export function WorkerRadar() {
 
         const marker = L.marker([worker.lat, worker.lng], { icon })
           .addTo(mapRef.current!)
-          .bindPopup(`<strong>${worker.name}</strong><br/>${worker.skill} • ${worker.rating} ★<br/>${worker.distanceKm} km away`);
+          .bindPopup(`<strong>${worker.name}</strong><br/>${worker.skill} • ${worker.rating} ★<br/>${worker.distanceKm} km away (${worker.locationSource === "profile" ? "approx" : "live"})`);
 
         marker.on("click", () => setSelectedWorker(worker));
         markerRef.current.push(marker);
@@ -214,7 +243,7 @@ export function WorkerRadar() {
   async function requestWorkerNow() {
     const worker = onlineWorkers.find((item) => item.skill === serviceType) ?? onlineWorkers[0];
     if (!worker) {
-      setBooking({ serviceType, status: "Requested", note: "Abhi koi worker live GPS ke saath online nahi hai. Worker ko dashboard se Go Online karna hoga." });
+      setBooking({ serviceType, status: "Requested", note: "Abhi koi worker online/profile location ke saath available nahi hai. Worker ko Go Online karna hoga ya profile location save karni hogi." });
       return;
     }
     setSelectedWorker(worker ?? null);
@@ -273,7 +302,7 @@ export function WorkerRadar() {
                 <p className="flex items-center gap-2 text-sm font-black"><Radio className="h-4 w-4 text-mint" /> Live Nearby Worker Radar</p>
                 <p className="mt-1 text-xs font-semibold text-zinc-500">{locationStatus}</p>
               </div>
-              <span className="rounded-full bg-mint/10 px-3 py-1 text-xs font-black text-emerald-700 dark:text-emerald-200">{onlineWorkers.length} online</span>
+              <span className="rounded-full bg-mint/10 px-3 py-1 text-xs font-black text-emerald-700 dark:text-emerald-200">{onlineWorkers.length} nearby</span>
             </div>
           </div>
           <div className="absolute bottom-4 left-3 right-3 z-[500] grid gap-3">
@@ -289,7 +318,7 @@ export function WorkerRadar() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-lg font-black">{activeWorker.name}</p>
-                    <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300">{activeWorker.skill} • {activeWorker.distanceKm} km • {activeWorker.rating} ★</p>
+                    <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300">{activeWorker.skill} • {activeWorker.distanceKm} km • {activeWorker.locationSource === "profile" ? "Approx" : "Live"} • {activeWorker.rating} ★</p>
                   </div>
                   {activeWorker.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-mint px-3 py-1 text-xs font-black text-white"><BadgeCheck className="h-3.5 w-3.5" /> Verified</span> : null}
                 </div>
@@ -302,6 +331,7 @@ export function WorkerRadar() {
           {!onlineWorkers.length ? (
             <div className="rounded-[1.5rem] border border-white/70 bg-white/92 p-4 text-sm font-bold text-zinc-600 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/90 dark:text-zinc-300">
               Abhi koi worker live GPS ke saath online nahi hai. Worker dashboard se Go Online karne ke baad exact distance yahan dikhega.
+              Agar worker GPS off rakhta hai to profile mein saved latitude/longitude add karne ke baad approximate distance dikhega.
             </div>
           ) : null}
           </div>
@@ -327,7 +357,7 @@ export function WorkerRadar() {
           <button onClick={requestWorkerNow} className="mt-4 w-full rounded-[1.35rem] bg-gradient-to-r from-red-500 via-saffron to-rose-500 px-5 py-4 text-base font-black text-white shadow-xl shadow-red-500/20">
             Need Worker Now
           </button>
-          <p className="mt-3 text-xs font-semibold text-zinc-500">Sends instant FCM notification to nearby online workers, with WhatsApp/call fallback for urgent jobs.</p>
+          <p className="mt-3 text-xs font-semibold text-zinc-500">Sends instant alert to nearby workers. Live GPS gives exact distance; saved profile location gives approximate distance.</p>
         </div>
 
         <div className="premium-card p-5">
@@ -366,13 +396,13 @@ export function WorkerRadar() {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-black">{worker.name}</p>
-                    <p className="text-xs font-semibold text-zinc-500">{worker.skill} • {worker.distanceKm} km • ETA {worker.etaMinutes} min</p>
+                    <p className="text-xs font-semibold text-zinc-500">{worker.skill} • {worker.distanceKm} km • {worker.locationSource === "profile" ? "Approx" : "Live"} • ETA {worker.etaMinutes} min</p>
                   </div>
                   {worker.verified ? <BadgeCheck className="h-5 w-5 text-mint" /> : <XCircle className="h-5 w-5 text-zinc-400" />}
                 </div>
               </button>
             ))}
-            {!onlineWorkers.length ? <p className="rounded-2xl bg-zinc-50 p-4 text-sm font-bold text-zinc-500 dark:bg-zinc-950/60">No live GPS workers online.</p> : null}
+            {!onlineWorkers.length ? <p className="rounded-2xl bg-zinc-50 p-4 text-sm font-bold text-zinc-500 dark:bg-zinc-950/60">No workers with live GPS or saved profile location.</p> : null}
           </div>
         </div>
       </aside>
