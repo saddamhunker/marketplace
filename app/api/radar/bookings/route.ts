@@ -8,6 +8,10 @@ type BookingWorkerCandidate = {
   profiles?: { whatsapp?: string | null; phone?: string | null } | { whatsapp?: string | null; phone?: string | null }[] | null;
 };
 
+function isSchemaCacheColumnError(message?: string) {
+  return Boolean(message?.includes("schema cache") || message?.includes("media_label") || message?.includes("problem_description") || message?.includes("urgency"));
+}
+
 export async function GET(request: Request) {
   const { supabase, user } = await getApiUser(request);
 
@@ -39,24 +43,38 @@ export async function POST(request: Request) {
     .select("id")
     .eq("profile_id", user.id)
     .maybeSingle();
-  const { data, error } = await admin
+  const baseBooking = {
+    customer_id: user.id,
+    service_type: body.serviceType,
+    latitude: body.latitude,
+    longitude: body.longitude,
+    radius_km: body.radiusKm ?? 5,
+    fallback_phone: body.fallbackPhone ?? null,
+    fallback_whatsapp: body.fallbackWhatsapp ?? null
+  };
+  const bookingWithDetails = {
+    ...baseBooking,
+    problem_description: body.problem ?? null,
+    urgency: body.urgency ?? "Urgent",
+    media_label: body.mediaLabel ?? null
+  };
+
+  let bookingResult = await admin
     .from("instant_bookings")
-    .insert({
-      customer_id: user.id,
-      service_type: body.serviceType,
-      latitude: body.latitude,
-      longitude: body.longitude,
-      radius_km: body.radiusKm ?? 5,
-      problem_description: body.problem ?? null,
-      urgency: body.urgency ?? "Urgent",
-      media_label: body.mediaLabel ?? null,
-      fallback_phone: body.fallbackPhone ?? null,
-      fallback_whatsapp: body.fallbackWhatsapp ?? null
-    })
+    .insert(bookingWithDetails)
     .select()
     .single();
 
-  if (error) return serverError(error.message);
+  if (bookingResult.error && isSchemaCacheColumnError(bookingResult.error.message)) {
+    bookingResult = await admin
+      .from("instant_bookings")
+      .insert(baseBooking)
+      .select()
+      .single();
+  }
+
+  if (bookingResult.error) return serverError(bookingResult.error.message);
+  const data = bookingResult.data;
 
   const candidateWorkerIds = Array.isArray(body.candidateWorkerIds)
     ? body.candidateWorkerIds.filter((id: unknown): id is string => typeof id === "string" && id.length > 0)
