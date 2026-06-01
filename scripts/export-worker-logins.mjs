@@ -36,6 +36,35 @@ async function listAllUsers(admin) {
   return users;
 }
 
+function slugify(value) {
+  return String(value || "worker")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 34) || "worker";
+}
+
+function buildLogin(worker, usedEmails) {
+  const name = worker.profiles?.full_name ?? "Worker";
+  const skill = worker.skill ?? "service";
+  const base = slugify(`${name}-${skill}`).replace(/-+/g, "-");
+  let email = `${base}@mistrihub.in`;
+  let suffix = 2;
+
+  while (usedEmails.has(email)) {
+    email = `${base}-${suffix}@mistrihub.in`;
+    suffix += 1;
+  }
+
+  usedEmails.add(email);
+
+  return {
+    email,
+    password: `MistriHub@${base.replace(/-/g, "").slice(0, 12)}2026`
+  };
+}
+
 const env = loadEnv();
 if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
@@ -57,6 +86,7 @@ if (error) throw error;
 
 const users = await listAllUsers(admin);
 const byId = new Map(users.map((user) => [user.id, user]));
+const reservedEmails = new Set(users.map((user) => user.email).filter(Boolean));
 const lines = [
   "MistriHub Market worker login credentials",
   "Keep this file private. Do NOT upload to GitHub.",
@@ -67,11 +97,12 @@ const lines = [
 
 for (const worker of workers ?? []) {
   const user = byId.get(worker.profile_id);
-  if (!user?.email?.endsWith("@mistrihub.local")) continue;
+  if (!user?.id) continue;
 
-  const idPart = user.email.replace("@mistrihub.local", "");
-  const password = `MistriHub-${idPart}-2026`;
+  if (user.email) reservedEmails.delete(user.email);
+  const { email, password } = buildLogin(worker, reservedEmails);
   const { error: updateError } = await admin.auth.admin.updateUserById(user.id, {
+    email,
     password,
     email_confirm: true,
     user_metadata: {
@@ -84,7 +115,7 @@ for (const worker of workers ?? []) {
 
   lines.push(`Name: ${worker.profiles?.full_name ?? "Worker"}`);
   lines.push(`Skill: ${worker.skill}`);
-  lines.push(`Email: ${user.email}`);
+  lines.push(`Email: ${email}`);
   lines.push(`Password: ${password}`);
   lines.push("");
 }
