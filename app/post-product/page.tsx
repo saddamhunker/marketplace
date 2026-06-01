@@ -1,5 +1,6 @@
-import { BadgeCheck, ImagePlus, ShieldCheck, Zap } from "lucide-react";
+import { BadgeCheck, ShieldCheck, Zap } from "lucide-react";
 import { ListingPostForm } from "@/components/forms/listing-post-form";
+import { UploadShortcut } from "@/components/forms/upload-shortcut";
 import { SectionHeader } from "@/components/ui";
 
 export const metadata = { title: "Post a Product" };
@@ -11,13 +12,7 @@ export default function PostProductPage() {
         <div>
           <SectionHeader eyebrow="Sell Nearby" title="List your item in minutes" description="Add price, condition, location, and seller verification details to build buyer confidence." />
           <div className="glass rounded-3xl p-5">
-            <div className="grid aspect-video place-items-center rounded-3xl border-2 border-dashed border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-              <div className="text-center">
-                <ImagePlus className="mx-auto mb-3 h-8 w-8 text-saffron" />
-                <p className="font-black">Real photo upload</p>
-                <p className="text-sm text-zinc-500">Preview, save, and show in marketplace</p>
-              </div>
-            </div>
+            <UploadShortcut inputId="product-photo-input" title="Real photo upload" description="Click here to choose photos" />
             <div className="mt-4 grid gap-3 text-sm font-bold">
               {[
                 { icon: BadgeCheck, text: "Verified seller badge support" },

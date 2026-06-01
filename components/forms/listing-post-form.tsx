@@ -41,6 +41,7 @@ async function fileToDataUrl(file: File) {
 export function ListingPostForm({ mode }: { mode: ListingMode }) {
   const router = useRouter();
   const categories = mode === "product" ? productCategories : jobCategories;
+  const photoInputId = `${mode}-photo-input`;
   const [form, setForm] = useState<FormState>({
     title: "",
     category: categories[0],
@@ -136,7 +137,7 @@ export function ListingPostForm({ mode }: { mode: ListingMode }) {
       <label className="grid gap-3 text-sm font-black">
         Photos
         <span className="grid min-h-44 cursor-pointer place-items-center rounded-3xl border-2 border-dashed border-zinc-200 bg-white p-4 text-center transition hover:border-saffron dark:border-zinc-800 dark:bg-zinc-950">
-          <input accept="image/*" className="sr-only" multiple onChange={(event) => handleFiles(event.target.files)} type="file" />
+          <input id={photoInputId} accept="image/*" className="sr-only" multiple onChange={(event) => handleFiles(event.target.files)} type="file" />
           {images.length ? (
             <span className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
               {images.map((image, index) => (
