@@ -1,7 +1,7 @@
 import { AlertTriangle, Boxes, Flag, ShieldCheck, UsersRound } from "lucide-react";
 import { AdminTable } from "@/components/admin-table";
 import { SectionHeader } from "@/components/ui";
-import { products } from "@/lib/data";
+import { marketplaceCategories, products, workerCategories } from "@/lib/data";
 import { getSupabaseWorkers } from "@/lib/workers-data";
 
 export const metadata = { title: "Admin Panel" };
@@ -13,6 +13,13 @@ const adminStats = [
   { label: "Workers", value: "12,486", icon: ShieldCheck },
   { label: "Products", value: "48,902", icon: Boxes },
   { label: "Open reports", value: "37", icon: AlertTriangle }
+];
+
+const adminCategories = [
+  ...workerCategories.map((category) => category.name),
+  ...marketplaceCategories.map((category) => category.name),
+  "Featured Worker",
+  "Featured Product"
 ];
 
 export default async function AdminPage() {
@@ -54,7 +61,7 @@ export default async function AdminPage() {
         <div className="glass rounded-[2rem] p-5">
           <h3 className="mb-4 text-lg font-black">Categories & Featured Listings</h3>
           <div className="flex flex-wrap gap-3">
-            {["Plumber", "Electrician", "Mechanic", "Painter", "Mobile", "Bike", "Car", "Property", "Featured Worker", "Featured Product"].map((item) => (
+            {adminCategories.map((item) => (
               <button key={item} className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-black dark:bg-zinc-800">{item}</button>
             ))}
           </div>

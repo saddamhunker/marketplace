@@ -8,10 +8,10 @@ import { ReviewCard } from "@/components/review-card";
 import { SearchBar } from "@/components/search-bar";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
 import { byCategory, openBusinesses, shoppingBusinesses, trendingBusinesses } from "@/lib/business-selectors";
-import { businesses, products, reviews, stats, trustFactors } from "@/lib/data";
+import { businesses, products, reviews, stats, trustFactors, workerCategories } from "@/lib/data";
 import { getSupabaseWorkers } from "@/lib/workers-data";
 
-const quickButtons = ["Need Electrician Now", "Need Plumber Now", "Need Mechanic Now", "Need Labour Today"];
+const quickButtons = workerCategories.slice(0, 4).map((category) => `Need ${category.name} Now`);
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

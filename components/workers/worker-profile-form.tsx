@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { BadgeCheck, IndianRupee, MapPin, Save } from "lucide-react";
 import { SelectField, TextAreaField, TextField } from "@/components/forms/form-fields";
+import { workerCategories } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
-const skills = ["Electrician", "Plumber", "Mechanic", "AC Repair", "Carpenter", "Painter", "Labour", "Mobile Repair", "Delivery"];
+const skills = workerCategories.map((category) => category.name);
 
 export function WorkerProfileForm() {
   const [skill, setSkill] = useState(skills[0]);

@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker } from "leaflet";
 import { BadgeCheck, CheckCircle2, Clock, LocateFixed, MapPin, MessageCircle, Phone, Radio, ShieldCheck, XCircle } from "lucide-react";
-import { type RadarWorker } from "@/lib/data";
+import { workerCategories, type RadarWorker } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
-const serviceTypes = ["Electrician", "Plumber", "Mechanic", "AC Repair", "Carpenter", "Delivery", "Labour"];
+const serviceTypes = [...workerCategories.map((category) => category.name), "Delivery"];
 const bookingSteps = ["Requested", "Accepted", "On The Way", "Arrived", "Completed"];
 
 type UserLocation = { lat: number; lng: number };

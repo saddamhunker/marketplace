@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ImagePlus, IndianRupee, MapPin, Send, Upload, X } from "lucide-react";
 import { SelectField, TextAreaField, TextField } from "@/components/forms/form-fields";
+import { marketplaceCategories, workerCategories } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -20,8 +21,8 @@ type FormState = {
   neededBy: string;
 };
 
-const productCategories = ["Mobile", "Bike", "Car", "Furniture", "Property", "Appliance", "Tools", "Electronics"];
-const jobCategories = ["Electrician", "Plumber", "Mechanic", "Painter", "Labour", "AC Repair", "Carpenter", "Other"];
+const productCategories = [...marketplaceCategories.map((category) => category.name), "Appliance", "Tools", "Electronics"];
+const jobCategories = workerCategories.map((category) => category.name);
 const conditions = ["New", "Excellent", "Good", "Used", "Needs repair"];
 
 function parsePrice(value: string) {
