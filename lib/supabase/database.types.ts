@@ -134,6 +134,23 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["reviews"]["Row"]>;
         Relationships: [];
       };
+      service_videos: {
+        Row: {
+          id: string;
+          worker_profile_id: string;
+          title: string;
+          description: string | null;
+          category: string;
+          video_url: string;
+          thumbnail_url: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["service_videos"]["Row"]> & { worker_profile_id: string; title: string; category: string; video_url: string };
+        Update: Partial<Database["public"]["Tables"]["service_videos"]["Row"]>;
+        Relationships: [];
+      };
       reports: {
         Row: {
           id: string;

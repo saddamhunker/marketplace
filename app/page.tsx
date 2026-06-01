@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, HeartPulse, MapPin, Play, Sparkles, Store, TicketPercent, Utensils, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, HeartPulse, MapPin, Sparkles, Store, TicketPercent, Utensils, Zap } from "lucide-react";
 import { CategoryGrid } from "@/components/category-grid";
 import { Leaderboard } from "@/components/leaderboard";
 import { LocationAwareBusinessGrid } from "@/components/location-aware-business-grid";
@@ -7,8 +7,10 @@ import { LiveFeed } from "@/components/live-feed";
 import { ReviewCard } from "@/components/review-card";
 import { SearchBar } from "@/components/search-bar";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
+import { ServiceVideoCard } from "@/components/videos/service-video-card";
 import { byCategory, openBusinesses, shoppingBusinesses, trendingBusinesses } from "@/lib/business-selectors";
 import { businesses, products, reviews, stats, trustFactors, workerCategories } from "@/lib/data";
+import { getRecentServiceVideos } from "@/lib/service-videos-data";
 import { getSupabaseWorkers } from "@/lib/workers-data";
 
 const quickButtons = workerCategories.slice(0, 4).map((category) => `Need ${category.name} Now`);
@@ -18,6 +20,7 @@ export const revalidate = 0;
 
 export default async function HomePage() {
   const homeWorkers = await getSupabaseWorkers(8);
+  const serviceVideos = await getRecentServiceVideos(4);
   const topWorkers = homeWorkers
     .filter((worker) => worker.level === "Elite" || worker.level === "Gold" || worker.trustScore >= 70)
     .slice(0, 5);
@@ -212,15 +215,7 @@ export default async function HomePage() {
         <div className="container-wide">
           <SectionHeader eyebrow="Reels" title="Short Service Videos" description="Local workers can post bite-sized proof videos: before/after, repair tips, shop demos, and completed jobs." />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {["Fan repair in 15 min", "Wall texture finish", "Bike chain service", "Sofa deep clean"].map((title, index) => (
-              <div key={title} className="group relative aspect-[9/14] overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-700 to-saffron p-4 text-white shadow-soft">
-                <button className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/20 backdrop-blur"><Play className="h-6 w-6 fill-white" /></button>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-xs font-bold opacity-80">#{index + 1} near you</p>
-                  <p className="text-lg font-black">{title}</p>
-                </div>
-              </div>
-            ))}
+            {serviceVideos.map((video, index) => <ServiceVideoCard key={video.id} video={video} index={index} />)}
           </div>
         </div>
       </section>

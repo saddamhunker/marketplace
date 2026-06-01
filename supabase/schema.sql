@@ -114,6 +114,19 @@ create table public.reviews (
   )
 );
 
+create table public.service_videos (
+  id uuid primary key default gen_random_uuid(),
+  worker_profile_id uuid not null references public.worker_profiles(id) on delete cascade,
+  title text not null,
+  description text,
+  category text not null,
+  video_url text not null,
+  thumbnail_url text,
+  status text not null default 'active',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table public.reports (
   id uuid primary key default gen_random_uuid(),
   reporter_id uuid not null references public.profiles(id) on delete cascade,
@@ -210,6 +223,7 @@ create trigger trust_scores_updated_at before update on public.trust_scores for 
 create trigger worker_profiles_updated_at before update on public.worker_profiles for each row execute function public.set_updated_at();
 create trigger business_profiles_updated_at before update on public.business_profiles for each row execute function public.set_updated_at();
 create trigger listings_updated_at before update on public.listings for each row execute function public.set_updated_at();
+create trigger service_videos_updated_at before update on public.service_videos for each row execute function public.set_updated_at();
 create trigger reports_updated_at before update on public.reports for each row execute function public.set_updated_at();
 create trigger worker_live_locations_updated_at before update on public.worker_live_locations for each row execute function public.set_updated_at();
 create trigger instant_bookings_updated_at before update on public.instant_bookings for each row execute function public.set_updated_at();
@@ -256,6 +270,7 @@ alter table public.worker_profiles enable row level security;
 alter table public.business_profiles enable row level security;
 alter table public.listings enable row level security;
 alter table public.reviews enable row level security;
+alter table public.service_videos enable row level security;
 alter table public.reports enable row level security;
 alter table public.notifications enable row level security;
 alter table public.referrals enable row level security;
@@ -287,6 +302,17 @@ create policy "Reviews readable" on public.reviews for select to authenticated u
 create policy "Users create reviews" on public.reviews for insert to authenticated with check (reviewer_id = auth.uid());
 create policy "Reviewers update own reviews" on public.reviews for update to authenticated using (reviewer_id = auth.uid()) with check (reviewer_id = auth.uid());
 create policy "Admins manage reviews" on public.reviews for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create policy "Service videos readable" on public.service_videos for select to authenticated using (status = 'active' or public.is_admin());
+create policy "Workers create own service videos" on public.service_videos for insert to authenticated with check (
+  exists (select 1 from public.worker_profiles wp where wp.id = worker_profile_id and wp.profile_id = auth.uid())
+);
+create policy "Workers update own service videos" on public.service_videos for update to authenticated using (
+  exists (select 1 from public.worker_profiles wp where wp.id = worker_profile_id and wp.profile_id = auth.uid())
+) with check (
+  exists (select 1 from public.worker_profiles wp where wp.id = worker_profile_id and wp.profile_id = auth.uid())
+);
+create policy "Admins manage service videos" on public.service_videos for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy "Users create reports" on public.reports for insert to authenticated with check (reporter_id = auth.uid());
 create policy "Users read own reports" on public.reports for select to authenticated using (reporter_id = auth.uid() or public.is_admin());
