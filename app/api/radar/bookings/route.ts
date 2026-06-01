@@ -1,4 +1,4 @@
-import { created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
+import { created, forbidden, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -20,13 +20,19 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser(request);
+  const { supabase, user, profile } = await getApiUser(request);
 
   if (!supabase) return serviceUnavailable();
   if (!user) return unauthorized();
+  if (profile?.role === "admin") return forbidden("Admin booking nahi karega. Admin panel se manage karo.");
 
   const body = await request.json();
   const admin = createAdminClient();
+  const { data: ownWorkerProfile } = await admin
+    .from("worker_profiles")
+    .select("id")
+    .eq("profile_id", user.id)
+    .maybeSingle();
   const { data, error } = await admin
     .from("instant_bookings")
     .insert({
@@ -56,7 +62,9 @@ export async function POST(request: Request) {
       .in("id", candidateWorkerIds)
       .limit(8);
 
-    (candidateWorkers ?? []).forEach((worker) => workerIds.add(worker.id));
+    (candidateWorkers ?? []).forEach((worker) => {
+      if (worker.id !== ownWorkerProfile?.id) workerIds.add(worker.id);
+    });
   }
 
   const { data: matchingWorkers } = await admin
@@ -66,7 +74,9 @@ export async function POST(request: Request) {
     .eq("availability", "Available Now")
     .limit(8);
 
-  (matchingWorkers ?? []).forEach((worker) => workerIds.add(worker.id));
+  (matchingWorkers ?? []).forEach((worker) => {
+    if (worker.id !== ownWorkerProfile?.id) workerIds.add(worker.id);
+  });
 
   const requestRows = Array.from(workerIds).map((workerProfileId) => ({
     booking_id: data.id,
