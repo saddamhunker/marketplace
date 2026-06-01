@@ -105,38 +105,42 @@ export default async function HomePage() {
 
       <section className="section-pad">
         <div className="container-wide">
-          <SectionHeader eyebrow="Nearby" title="Workers Ready Around You" description="Verified local professionals with ratings, level badges, response time, and direct contact." action={{ href: "/workers", label: "View all workers" }} />
+          <SectionHeader eyebrow="Nearby" title="Workers Ready Around You" description="Verified local professionals with ratings, level badges, response time, and direct contact." />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {homeWorkers.map((worker, index) => <WorkerCard key={worker.id} worker={worker} featured={index < 3} />)}
           </div>
           {!homeWorkers.length ? <p className="rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">Supabase workers abhi load nahi hue.</p> : null}
+          <BottomSectionLink href="/workers" label="View all workers" />
         </div>
       </section>
 
       <section className="section-pad">
         <div className="container-wide">
-          <SectionHeader eyebrow="Market" title="Nearby Marketplace Deals" description="Buy and sell bikes, mobiles, furniture, property, appliances, and tools with seller trust scores." action={{ href: "/marketplace", label: "Explore marketplace" }} />
+          <SectionHeader eyebrow="Market" title="Nearby Marketplace Deals" description="Buy and sell bikes, mobiles, furniture, property, appliances, and tools with seller trust scores." />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {products.slice(0, 8).map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
+          <BottomSectionLink href="/marketplace" label="Explore marketplace" />
         </div>
       </section>
 
       <section className="section-pad">
         <div className="container-wide">
-          <SectionHeader eyebrow="Places" title="Nearby Restaurants" description="Verified food spots with photos, reviews, offers, timings, directions, and quick WhatsApp." action={{ href: "/nearby-places", label: "Explore nearby places" }} />
+          <SectionHeader eyebrow="Places" title="Nearby Restaurants" description="Verified food spots with photos, reviews, offers, timings, directions, and quick WhatsApp." />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {restaurants.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} />)}
           </div>
+          <BottomSectionLink href="/nearby-places" label="Explore nearby places" />
         </div>
       </section>
 
       <section className="section-pad">
         <div className="container-wide">
-          <SectionHeader title="Nearby Shops" description="Daily-use shops, grocery, medical, hardware, electronics, and repair counters around your location." action={{ href: "/nearby-places", label: "View shops" }} />
+          <SectionHeader title="Nearby Shops" description="Daily-use shops, grocery, medical, hardware, electronics, and repair counters around your location." />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {nearbyShops.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} />)}
           </div>
+          <BottomSectionLink href="/nearby-places" label="View shops" />
         </div>
       </section>
 
@@ -194,7 +198,7 @@ export default async function HomePage() {
 
       <section className="section-pad">
         <div className="container-wide">
-          <SectionHeader title="Trending Places Near You" description="Local places people are viewing, saving, calling, and visiting today." action={{ href: "/nearby-places", label: "See all places" }} />
+          <SectionHeader title="Trending Places Near You" description="Local places people are viewing, saving, calling, and visiting today." />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trendingPlaces.slice(0, 4).map((business) => <BusinessCard key={business.id} business={business} compact />)}
           </div>
@@ -206,6 +210,7 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+          <BottomSectionLink href="/nearby-places" label="See all places" />
         </div>
       </section>
 
@@ -272,5 +277,16 @@ export default async function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+function BottomSectionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <div className="mt-5 flex justify-center">
+      <Link href={href} className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-saffron dark:bg-white dark:text-ink">
+        {label}
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
   );
 }

@@ -104,9 +104,15 @@ export default async function DashboardPage() {
           </div>
 
           <div id="listings" className="scroll-mt-28">
-            <SectionHeader title="Your Product Listings" action={{ href: "/post-product", label: "Sell another item" }} />
+            <SectionHeader title="Your Product Listings" />
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {products.slice(0, 4).map((product) => <ProductCard key={product.id} product={product} />)}
+            </div>
+            <div className="mt-5 flex justify-center">
+              <Link href="/post-product" className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-saffron dark:bg-white dark:text-ink">
+                Sell another item
+                <Plus className="h-4 w-4" />
+              </Link>
             </div>
           </div>
 
