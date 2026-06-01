@@ -111,7 +111,9 @@ export type RadarWorker = {
   online: boolean;
 };
 
-export const categories: { name: string; icon: LucideIcon; tone: string }[] = [
+export type CategoryItem = { name: string; icon: LucideIcon; tone: string };
+
+export const workerCategories: CategoryItem[] = [
   { name: "Plumber", icon: Wrench, tone: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-200" },
   { name: "Electrician", icon: Bolt, tone: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200" },
   { name: "Mechanic", icon: Drill, tone: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-200" },
@@ -120,13 +122,18 @@ export const categories: { name: string; icon: LucideIcon; tone: string }[] = [
   { name: "Labour", icon: Hammer, tone: "bg-lime-100 text-lime-700 dark:bg-lime-500/15 dark:text-lime-200" },
   { name: "CCTV Installer", icon: Camera, tone: "bg-zinc-100 text-zinc-700 dark:bg-zinc-500/15 dark:text-zinc-200" },
   { name: "Carpenter", icon: Hammer, tone: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-200" },
-  { name: "A/C Fridge Repair", icon: Snowflake, tone: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200" },
+  { name: "A/C Fridge Repair", icon: Snowflake, tone: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200" }
+];
+
+export const marketplaceCategories: CategoryItem[] = [
   { name: "Mobile", icon: Smartphone, tone: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200" },
   { name: "Bike", icon: Bike, tone: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-200" },
   { name: "Car", icon: Car, tone: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-200" },
   { name: "Furniture", icon: Sofa, tone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-200" },
   { name: "Property", icon: Building2, tone: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-200" }
 ];
+
+export const categories: CategoryItem[] = [...workerCategories, ...marketplaceCategories];
 
 export const businessCategories: { name: string; icon: LucideIcon; tone: string }[] = [
   { name: "Hotels", icon: Hotel, tone: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200" },
