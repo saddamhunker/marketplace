@@ -16,6 +16,8 @@ type ListingRow = {
   created_at?: string;
   profiles?: { full_name?: string | null } | null;
   owner_id?: string | null;
+  sellerWhatsapp?: string;
+  sellerPhone?: string;
 };
 
 function mapListing(row: ListingRow): Product {
@@ -27,6 +29,8 @@ function mapListing(row: ListingRow): Product {
     location: row.location,
     posted: "Just now",
     seller: row.profiles?.full_name ?? "Verified seller",
+    sellerWhatsapp: row.sellerWhatsapp,
+    sellerPhone: row.sellerPhone,
     sellerTrust: 82,
     condition: "Listed",
     imageTone: "from-mint to-emerald-600",

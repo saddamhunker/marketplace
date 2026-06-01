@@ -61,6 +61,8 @@ export type Product = {
   location: string;
   posted: string;
   seller: string;
+  sellerWhatsapp?: string;
+  sellerPhone?: string;
   sellerTrust: number;
   condition: string;
   imageTone: string;
