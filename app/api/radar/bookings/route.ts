@@ -43,16 +43,34 @@ export async function POST(request: Request) {
 
   if (error) return serverError(error.message);
 
-  const { data: workers } = await admin
+  const candidateWorkerIds = Array.isArray(body.candidateWorkerIds)
+    ? body.candidateWorkerIds.filter((id: unknown): id is string => typeof id === "string" && id.length > 0)
+    : [];
+
+  const workerIds = new Set<string>();
+
+  if (candidateWorkerIds.length) {
+    const { data: candidateWorkers } = await admin
+      .from("worker_profiles")
+      .select("id")
+      .in("id", candidateWorkerIds)
+      .limit(8);
+
+    (candidateWorkers ?? []).forEach((worker) => workerIds.add(worker.id));
+  }
+
+  const { data: matchingWorkers } = await admin
     .from("worker_profiles")
     .select("id")
     .eq("skill", body.serviceType)
     .eq("availability", "Available Now")
     .limit(8);
 
-  const requestRows = (workers ?? []).map((worker) => ({
+  (matchingWorkers ?? []).forEach((worker) => workerIds.add(worker.id));
+
+  const requestRows = Array.from(workerIds).map((workerProfileId) => ({
     booking_id: data.id,
-    worker_profile_id: worker.id,
+    worker_profile_id: workerProfileId,
     status: "pending"
   }));
 

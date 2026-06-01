@@ -52,6 +52,8 @@ export async function POST(request: Request) {
       longitude: typeof longitude === "number" && Number.isFinite(longitude) ? longitude : null,
       bio: body.bio ?? null,
       availability: body.availability ?? "Available Now"
+    }, {
+      onConflict: "profile_id"
     })
     .select()
     .single();

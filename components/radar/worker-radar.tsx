@@ -323,7 +323,10 @@ export function WorkerRadar() {
           serviceType,
           latitude: userLocation.lat,
           longitude: userLocation.lng,
-          radiusKm
+          radiusKm,
+          candidateWorkerIds: onlineWorkers
+            .filter((item) => item.skill === serviceType)
+            .map((item) => item.id)
         })
       });
       const payload = await response.json().catch(() => ({}));
@@ -341,7 +344,9 @@ export function WorkerRadar() {
           serviceType,
           status: "Requested",
           worker,
-          note: "Booking request sent. Worker accept karega tabhi Accepted/On The Way hoga."
+          note: payload.data?.notifiedWorkers
+            ? `${payload.data.notifiedWorkers} worker ko request bheja. Worker accept karega tabhi Accepted/On The Way hoga.`
+            : "Booking saved, lekin matching worker request create nahi hui. Worker category/profile availability check karo."
         });
       }
     } catch {

@@ -15,7 +15,13 @@ type WorkerBookingRequest = {
     status: string;
     eta_minutes?: number | null;
     created_at: string;
-  } | null;
+  } | {
+    id: string;
+    service_type: string;
+    status: string;
+    eta_minutes?: number | null;
+    created_at: string;
+  }[] | null;
 };
 
 const activeStatuses = ["requested", "accepted", "on_the_way", "arrived"];
@@ -92,7 +98,7 @@ export function WorkerBookingRequests() {
 
       <div className="grid gap-3">
         {requests.map((request) => {
-          const booking = request.instant_bookings;
+          const booking = Array.isArray(request.instant_bookings) ? request.instant_bookings[0] : request.instant_bookings;
           const bookingStatus = booking?.status ?? "requested";
           const canAccept = request.status === "pending" && bookingStatus === "requested";
           const canMove = request.status === "accepted" && activeStatuses.includes(bookingStatus);
