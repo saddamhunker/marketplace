@@ -1,7 +1,7 @@
-import { Filter, MapPin } from "lucide-react";
+import { Filter } from "lucide-react";
 import { SearchBar } from "@/components/search-bar";
-import { SectionHeader, WorkerCard } from "@/components/ui";
-import { workers } from "@/lib/data";
+import { SectionHeader } from "@/components/ui";
+import { WorkersGrid } from "@/components/workers/workers-grid";
 
 export const metadata = { title: "Worker Listing" };
 
@@ -19,13 +19,7 @@ export default function WorkersPage() {
             </button>
           ))}
         </div>
-        <div className="mb-5 flex items-center gap-2 text-sm font-bold text-zinc-600 dark:text-zinc-300">
-          <MapPin className="h-4 w-4 text-mint" />
-          Showing 20 trusted profiles around your city
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {workers.map((worker) => <WorkerCard key={worker.id} worker={worker} featured={worker.trustScore > 92} />)}
-        </div>
+        <WorkersGrid />
       </div>
     </section>
   );

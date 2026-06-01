@@ -1,23 +1,35 @@
 import { created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function GET() {
-  const { supabase } = await getApiUser();
-  if (!supabase) return serviceUnavailable();
-  const { data, error } = await supabase
-    .from("worker_profiles")
-    .select("*, profiles(full_name, phone, whatsapp), trust_scores(score)")
-    .order("created_at", { ascending: false });
+export async function GET(request: Request) {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("worker_profiles")
+      .select("*, profiles(full_name, phone, whatsapp)")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    return serverError(error.message);
+    if (error) return serverError(error.message);
+
+    return ok(data);
+  } catch {
+    const { supabase } = await getApiUser(request);
+    if (!supabase) return serviceUnavailable();
+
+    const { data, error } = await supabase
+      .from("worker_profiles")
+      .select("*, profiles(full_name, phone, whatsapp)")
+      .order("created_at", { ascending: false });
+
+    if (error) return serverError(error.message);
+
+    return ok(data);
   }
-
-  return ok(data);
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getApiUser();
+  const { supabase, user } = await getApiUser(request);
   if (!supabase) return serviceUnavailable();
 
   if (!user) {

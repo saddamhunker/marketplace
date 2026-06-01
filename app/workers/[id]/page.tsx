@@ -3,23 +3,42 @@ import { notFound } from "next/navigation";
 import { BadgeCheck, BriefcaseBusiness, Clock, Flag, MessageCircle, Phone, ShieldCheck, Star } from "lucide-react";
 import { ReviewCard } from "@/components/review-card";
 import { LevelBadge, SectionHeader, StatusPill, TrustBadge, WorkerCard } from "@/components/ui";
-import { reviews, trustFactors, workers } from "@/lib/data";
+import { reviews, trustFactors, workers, type Worker } from "@/lib/data";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { mapWorkerProfile, type WorkerProfileRow } from "@/lib/worker-mapper";
 
-export function generateStaticParams() {
-  return workers.map((worker) => ({ id: worker.id }));
-}
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
 
 type DetailParams = Promise<{ id: string }>;
 
 export async function generateMetadata({ params }: { params: DetailParams }) {
   const { id } = await params;
-  const worker = workers.find((item) => item.id === id);
+  const worker = workers.find((item) => item.id === id) ?? await getRemoteWorker(id);
   return { title: worker ? `${worker.name} - ${worker.skill}` : "Worker Profile" };
+}
+
+async function getRemoteWorker(id: string): Promise<Worker | null> {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("worker_profiles")
+      .select("*, profiles(full_name, phone, whatsapp)")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) return null;
+
+    return mapWorkerProfile(data as WorkerProfileRow);
+  } catch {
+    return null;
+  }
 }
 
 export default async function WorkerProfilePage({ params }: { params: DetailParams }) {
   const { id } = await params;
-  const worker = workers.find((item) => item.id === id);
+  const worker = workers.find((item) => item.id === id) ?? await getRemoteWorker(id);
   if (!worker) notFound();
   const related = workers.filter((item) => item.skill === worker.skill && item.id !== worker.id).slice(0, 3);
 

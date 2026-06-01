@@ -4,6 +4,7 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Leaderboard } from "@/components/leaderboard";
 import { WorkerOnlineToggle } from "@/components/radar/worker-online-toggle";
 import { ProductCard, SectionHeader, WorkerCard } from "@/components/ui";
+import { WorkerProfileForm } from "@/components/workers/worker-profile-form";
 import { getApiUser } from "@/lib/api/auth";
 import { leaderboard, products, workers } from "@/lib/data";
 
@@ -56,6 +57,8 @@ export default async function DashboardPage() {
           <div id="profile" className="scroll-mt-28">
             <WorkerOnlineToggle />
           </div>
+
+          <WorkerProfileForm />
 
           <div id="verification" className="scroll-mt-28 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
             <div className="glass rounded-[2rem] p-5">
