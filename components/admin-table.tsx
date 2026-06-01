@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BadgeCheck, Ban, Download, Eye, MoreHorizontal, ShieldCheck, Sparkles } from "lucide-react";
+import { BadgeCheck, Ban, Download, Eye, MoreHorizontal, ShieldCheck, Sparkles, X } from "lucide-react";
 
 type AdminRow = { name: string; type: string; status: string; score: string };
 
@@ -12,16 +12,44 @@ export function AdminTable({
   title: string;
   rows: AdminRow[];
 }) {
+  const [tableRows, setTableRows] = useState(rows);
   const [openRow, setOpenRow] = useState<string | null>(null);
+  const [selectedRow, setSelectedRow] = useState<AdminRow | null>(null);
   const [message, setMessage] = useState("");
+
+  function updateRow(row: AdminRow, patch: Partial<AdminRow>) {
+    setTableRows((currentRows) => currentRows.map((item) => item.name === row.name && item.type === row.type ? { ...item, ...patch } : item));
+  }
 
   function runAction(action: string, row: AdminRow) {
     setOpenRow(null);
-    setMessage(`${action} ready for ${row.name}. Admin API update hook can be connected next.`);
+
+    if (action === "View details") {
+      setSelectedRow(row);
+      setMessage("");
+      return;
+    }
+
+    if (action === "Mark verified") {
+      updateRow(row, { status: "Verified" });
+      setMessage(`${row.name} marked as verified.`);
+      return;
+    }
+
+    if (action === "Feature listing") {
+      updateRow(row, { status: "Featured" });
+      setMessage(`${row.name} added to featured list.`);
+      return;
+    }
+
+    if (action === "Suspend") {
+      updateRow(row, { status: "Suspended" });
+      setMessage(`${row.name} suspended from public discovery.`);
+    }
   }
 
   function exportRows() {
-    setMessage(`${title} export ready with ${rows.length} rows.`);
+    setMessage(`${title} export ready with ${tableRows.length} rows.`);
   }
 
   return (
@@ -46,7 +74,7 @@ export function AdminTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
+            {tableRows.map((row) => {
               const rowKey = `${row.name}-${row.type}`;
               return (
                 <tr key={rowKey} className="border-t border-zinc-100 dark:border-zinc-800">
@@ -97,6 +125,39 @@ export function AdminTable({
           </tbody>
         </table>
       </div>
+      {selectedRow ? (
+        <div className="fixed inset-0 z-[80] grid place-items-center bg-ink/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`${selectedRow.name} details`}>
+          <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl dark:bg-zinc-950">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-saffron">{title}</p>
+                <h3 className="mt-1 text-2xl font-black">{selectedRow.name}</h3>
+              </div>
+              <button onClick={() => setSelectedRow(null)} className="grid h-10 w-10 place-items-center rounded-2xl bg-zinc-100 dark:bg-zinc-900" aria-label="Close details">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-5 grid gap-3 text-sm">
+              <div className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <p className="text-xs font-bold uppercase text-zinc-500">Type</p>
+                <p className="font-black">{selectedRow.type}</p>
+              </div>
+              <div className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <p className="text-xs font-bold uppercase text-zinc-500">Status</p>
+                <p className="font-black">{selectedRow.status}</p>
+              </div>
+              <div className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <p className="text-xs font-bold uppercase text-zinc-500">Trust score</p>
+                <p className="font-black">{selectedRow.score}</p>
+              </div>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button onClick={() => { runAction("Mark verified", selectedRow); setSelectedRow(null); }} className="rounded-2xl bg-mint px-4 py-3 text-sm font-black text-white">Verify</button>
+              <button onClick={() => { runAction("Suspend", selectedRow); setSelectedRow(null); }} className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-600 dark:bg-red-500/10">Suspend</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
