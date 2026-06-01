@@ -5,11 +5,8 @@ import { products, type Product } from "@/lib/data";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 export const revalidate = 0;
-
-export function generateStaticParams() {
-  return products.map((product) => ({ id: product.id }));
-}
 
 type DetailParams = Promise<{ id: string }>;
 
@@ -31,7 +28,7 @@ async function getRemoteProduct(id: string): Promise<Product | null> {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("listings")
-      .select("*")
+      .select("id,title,category,description,price,price_label,location,images,owner_id")
       .eq("id", id)
       .eq("type", "product")
       .single();
@@ -62,7 +59,7 @@ async function getRemoteProduct(id: string): Promise<Product | null> {
       sellerTrust: 82,
       condition: "Listed",
       imageTone: "from-mint to-emerald-600",
-      imageUrl: row.images?.[0],
+      imageUrl: row.images?.[0]?.startsWith("data:") && row.images[0].length > 120_000 ? undefined : row.images?.[0],
       description: row.description ?? "Fresh local listing from MistriHub Market."
     };
   } catch {
