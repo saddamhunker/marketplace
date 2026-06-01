@@ -5,9 +5,39 @@ import { WorkerCard } from "@/components/ui";
 import type { Worker } from "@/lib/data";
 import { mapWorkerProfile, type WorkerProfileRow } from "@/lib/worker-mapper";
 
+type UserLocation = { lat: number; lng: number };
+
+function toRad(value: number) {
+  return (value * Math.PI) / 180;
+}
+
+function distanceKm(from: UserLocation, to: UserLocation) {
+  const radius = 6371;
+  const dLat = toRad(to.lat - from.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(from.lat)) * Math.cos(toRad(to.lat)) * Math.sin(dLng / 2) ** 2;
+  return Number((2 * radius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1));
+}
+
 export function WorkersGrid() {
   const [remoteWorkers, setRemoteWorkers] = useState<Worker[]>([]);
   const [message, setMessage] = useState("");
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setMessage("Location permission milega to exact distance dikhega.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setMessage("");
+      },
+      () => setMessage("Location permission allow karo, tab exact km distance dikhega.")
+    );
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -39,8 +69,13 @@ export function WorkersGrid() {
   }, []);
 
   const allWorkers = useMemo(() => {
-    return remoteWorkers;
-  }, [remoteWorkers]);
+    return remoteWorkers.map((worker) => {
+      if (!userLocation || !worker.latitude || !worker.longitude) return worker;
+
+      const km = distanceKm(userLocation, { lat: worker.latitude, lng: worker.longitude });
+      return { ...worker, distance: `${km} km away` };
+    });
+  }, [remoteWorkers, userLocation]);
 
   return (
     <>

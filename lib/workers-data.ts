@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { mapWorkerProfile, type WorkerProfileRow } from "@/lib/worker-mapper";
 import type { Worker } from "@/lib/data";
 
-const workerSelect = "*, profiles(full_name, phone, whatsapp)";
+const workerSelect = "*, profiles(full_name, phone, whatsapp), worker_live_locations(latitude, longitude, is_online, last_seen_at)";
 
 export async function getSupabaseWorkers(limit?: number): Promise<Worker[]> {
   try {

@@ -1,12 +1,11 @@
 import { ok, serviceUnavailable } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
-import { radarWorkers } from "@/lib/data";
 
 export async function GET() {
   const { supabase } = await getApiUser();
 
   if (!supabase) {
-    return ok(radarWorkers.filter((worker) => worker.online));
+    return ok([], { headers: { "x-mistrihub-fallback": "supabase-not-configured" } });
   }
 
   const { data, error } = await supabase
@@ -16,10 +15,10 @@ export async function GET() {
     .order("last_seen_at", { ascending: false });
 
   if (error) {
-    return ok(radarWorkers.filter((worker) => worker.online), { headers: { "x-mistrihub-fallback": "radar-demo" } });
+    return ok([], { headers: { "x-mistrihub-fallback": "radar-db-error" } });
   }
 
-  return ok(data?.length ? data : radarWorkers.filter((worker) => worker.online));
+  return ok(data ?? []);
 }
 
 export async function POST() {

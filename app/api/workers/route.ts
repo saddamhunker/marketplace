@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("worker_profiles")
-      .select("*, profiles(full_name, phone, whatsapp)")
+      .select("*, profiles(full_name, phone, whatsapp), worker_live_locations(latitude, longitude, is_online, last_seen_at)")
       .order("created_at", { ascending: false });
 
     if (error) return serverError(error.message);
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase
       .from("worker_profiles")
-      .select("*, profiles(full_name, phone, whatsapp)")
+      .select("*, profiles(full_name, phone, whatsapp), worker_live_locations(latitude, longitude, is_online, last_seen_at)")
       .order("created_at", { ascending: false });
 
     if (error) return serverError(error.message);

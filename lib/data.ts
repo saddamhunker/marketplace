@@ -53,6 +53,9 @@ export type Worker = {
   availability: Availability;
   level: WorkerLevel;
   about: string;
+  latitude?: number;
+  longitude?: number;
+  gpsOnline?: boolean;
 };
 
 export type Product = {

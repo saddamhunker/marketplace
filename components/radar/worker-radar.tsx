@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker } from "leaflet";
 import { BadgeCheck, CheckCircle2, Clock, LocateFixed, MapPin, MessageCircle, Phone, Radio, ShieldCheck, XCircle } from "lucide-react";
-import { radarWorkers, type RadarWorker } from "@/lib/data";
+import { type RadarWorker } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -43,9 +43,11 @@ function distanceKm(from: UserLocation, to: UserLocation) {
   return Number((2 * radius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1));
 }
 
-function normalizeApiWorker(worker: RadarApiWorker, userLocation: UserLocation): RadarWorker {
-  const lat = worker.latitude ?? 28.6139;
-  const lng = worker.longitude ?? 77.209;
+function normalizeApiWorker(worker: RadarApiWorker, userLocation: UserLocation): RadarWorker | null {
+  if (typeof worker.latitude !== "number" || typeof worker.longitude !== "number") return null;
+
+  const lat = worker.latitude;
+  const lng = worker.longitude;
   const km = distanceKm(userLocation, { lat, lng });
   return {
     id: worker.worker_profile_id ?? worker.worker_profiles?.id ?? `${lat}-${lng}`,
@@ -73,7 +75,7 @@ export function WorkerRadar() {
   const [serviceType, setServiceType] = useState(serviceTypes[0]);
   const [selectedWorker, setSelectedWorker] = useState<RadarWorker | null>(null);
   const [booking, setBooking] = useState<BookingState | null>(null);
-  const [workersSource, setWorkersSource] = useState<RadarWorker[]>(radarWorkers);
+  const [workersSource, setWorkersSource] = useState<RadarWorker[]>([]);
 
   const onlineWorkers = useMemo(
     () => workersSource.filter((worker) => worker.online && worker.distanceKm <= radiusKm),
@@ -113,7 +115,7 @@ export function WorkerRadar() {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setLocationStatus("Location is not supported in this browser. Showing demo workers near Delhi.");
+        setLocationStatus("Location is not supported in this browser. Exact radar distance unavailable.");
       return;
     }
 
@@ -127,7 +129,7 @@ export function WorkerRadar() {
         setLocationStatus("Location detected. Showing online workers near you.");
         mapRef.current?.setView([nextLocation.lat, nextLocation.lng], 13);
       },
-      () => setLocationStatus("Location permission not allowed. Showing demo nearby workers.")
+      () => setLocationStatus("Location permission allow karo, tab exact nearby workers dikhenge.")
     );
   }, []);
 
@@ -141,17 +143,17 @@ export function WorkerRadar() {
         if (!active) return;
 
         if (!response.ok || !Array.isArray(payload.data)) {
-          setWorkersSource(radarWorkers);
+          setWorkersSource([]);
           return;
         }
 
         const normalized = payload.data.map((worker: RadarApiWorker | RadarWorker) => {
           if ("lat" in worker && "lng" in worker) return worker as RadarWorker;
           return normalizeApiWorker(worker as RadarApiWorker, userLocation);
-        });
-        setWorkersSource(normalized.length ? normalized : radarWorkers);
+        }).filter(Boolean) as RadarWorker[];
+        setWorkersSource(normalized);
       } catch {
-        if (active) setWorkersSource(radarWorkers);
+        if (active) setWorkersSource([]);
       }
     }
 
@@ -211,6 +213,10 @@ export function WorkerRadar() {
 
   async function requestWorkerNow() {
     const worker = onlineWorkers.find((item) => item.skill === serviceType) ?? onlineWorkers[0];
+    if (!worker) {
+      setBooking({ serviceType, status: "Requested", note: "Abhi koi worker live GPS ke saath online nahi hai. Worker ko dashboard se Go Online karna hoga." });
+      return;
+    }
     setSelectedWorker(worker ?? null);
     setBooking({ serviceType, status: "Requested", worker });
 
@@ -292,7 +298,12 @@ export function WorkerRadar() {
                   <a href={`https://wa.me/${activeWorker.whatsapp}`} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-mint to-emerald-500 px-4 py-3 text-sm font-black text-white"><MessageCircle className="h-4 w-4" /> WhatsApp</a>
                 </div>
               </div>
-            ) : null}
+          ) : null}
+          {!onlineWorkers.length ? (
+            <div className="rounded-[1.5rem] border border-white/70 bg-white/92 p-4 text-sm font-bold text-zinc-600 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/90 dark:text-zinc-300">
+              Abhi koi worker live GPS ke saath online nahi hai. Worker dashboard se Go Online karne ke baad exact distance yahan dikhega.
+            </div>
+          ) : null}
           </div>
         </div>
       </div>
@@ -361,6 +372,7 @@ export function WorkerRadar() {
                 </div>
               </button>
             ))}
+            {!onlineWorkers.length ? <p className="rounded-2xl bg-zinc-50 p-4 text-sm font-bold text-zinc-500 dark:bg-zinc-950/60">No live GPS workers online.</p> : null}
           </div>
         </div>
       </aside>
