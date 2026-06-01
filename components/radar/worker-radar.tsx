@@ -7,7 +7,7 @@ import { workerCategories, type RadarWorker } from "@/lib/data";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
-const serviceTypes = [...workerCategories.map((category) => category.name), "Delivery"];
+const serviceTypes = workerCategories.map((category) => category.name);
 const bookingSteps = ["Requested", "Accepted", "On The Way", "Arrived", "Completed"];
 
 type UserLocation = { lat: number; lng: number };
