@@ -1,19 +1,35 @@
 import { badRequest, created, ok, serverError, serviceUnavailable, unauthorized } from "@/lib/api/response";
 import { getApiUser } from "@/lib/api/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
-  const { supabase } = await getApiUser(request);
-  if (!supabase) return serviceUnavailable();
-  const { data, error } = await supabase
-    .from("listings")
-    .select("*, profiles(full_name, phone, whatsapp)")
-    .order("created_at", { ascending: false });
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("listings")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    return serverError(error.message);
+    if (error) {
+      return serverError(error.message);
+    }
+
+    return ok(data);
+  } catch {
+    const { supabase } = await getApiUser(request);
+    if (!supabase) return serviceUnavailable();
+
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return serverError(error.message);
+    }
+
+    return ok(data);
   }
-
-  return ok(data);
 }
 
 export async function POST(request: Request) {

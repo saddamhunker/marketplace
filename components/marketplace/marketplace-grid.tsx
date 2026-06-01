@@ -15,6 +15,7 @@ type ListingRow = {
   images?: string[] | null;
   created_at?: string;
   profiles?: { full_name?: string | null } | null;
+  owner_id?: string | null;
 };
 
 function mapListing(row: ListingRow): Product {
@@ -43,7 +44,7 @@ export function MarketplaceGrid() {
 
     async function loadListings() {
       try {
-        const response = await fetch("/api/listings", { cache: "no-store" });
+        const response = await fetch(`/api/listings?ts=${Date.now()}`, { cache: "no-store" });
         const payload = await response.json().catch(() => ({}));
 
         if (!active) return;

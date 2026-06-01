@@ -121,7 +121,8 @@ export function ListingPostForm({ mode }: { mode: ListingMode }) {
       }
 
       setStatus(successLabel);
-      router.push(isProduct ? "/marketplace?posted=1" : "/dashboard?posted=job");
+      const createdId = payload.data?.id;
+      router.push(isProduct && createdId ? `/products/${createdId}` : isProduct ? `/marketplace?posted=1&ts=${Date.now()}` : "/dashboard?posted=job");
       router.refresh();
     } catch {
       setStatus("Network issue. Local server aur Supabase connection check karo.");

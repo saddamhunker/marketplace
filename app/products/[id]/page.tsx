@@ -2,7 +2,10 @@ import { notFound } from "next/navigation";
 import { Flag, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 import { ProductCard, SectionHeader, TrustBadge } from "@/components/ui";
 import { products, type Product } from "@/lib/data";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export function generateStaticParams() {
   return products.map((product) => ({ id: product.id }));
@@ -20,21 +23,33 @@ type ListingProductRow = {
   location: string;
   images: string[] | null;
   profiles?: { full_name?: string | null } | null;
+  owner_id?: string | null;
 };
 
 async function getRemoteProduct(id: string): Promise<Product | null> {
   try {
-    const supabase = await createClient();
-    const { data } = await supabase
+    const admin = createAdminClient();
+    const { data, error } = await admin
       .from("listings")
-      .select("*, profiles(full_name)")
+      .select("*")
       .eq("id", id)
       .eq("type", "product")
       .single();
 
-    if (!data) return null;
+    if (error || !data) return null;
 
     const row = data as ListingProductRow;
+    let seller = "Verified seller";
+
+    if (row.owner_id) {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("id", row.owner_id)
+        .single();
+
+      seller = profile?.full_name ?? seller;
+    }
 
     return {
       id: row.id,
@@ -43,7 +58,7 @@ async function getRemoteProduct(id: string): Promise<Product | null> {
       price: row.price_label ?? (row.price ? `Rs ${Number(row.price).toLocaleString("en-IN")}` : "Price on call"),
       location: row.location,
       posted: "Just now",
-      seller: row.profiles?.full_name ?? "Verified seller",
+      seller,
       sellerTrust: 82,
       condition: "Listed",
       imageTone: "from-mint to-emerald-600",
